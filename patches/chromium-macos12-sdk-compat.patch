@@ -1,0 +1,170 @@
+diff --git a/base/process/launch_mac.cc b/base/process/launch_mac.cc
+index 7e09a9d4a6..a6f680f19a 100644
+--- a/base/process/launch_mac.cc
++++ b/base/process/launch_mac.cc
+@@ -160,11 +160,17 @@ class PosixSpawnFileActions {
+ 
+ #if BUILDFLAG(IS_MAC)
+   void Chdir(const char* path) {
++#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 260000
+     if (__builtin_available(macOS 26, *)) {
+       DPSXCHECK(posix_spawn_file_actions_addchdir(&file_actions_, path));
+     } else {
+       DPSXCHECK(posix_spawn_file_actions_addchdir_np(&file_actions_, path));
+     }
++#else
++    // The standardized API is absent from older SDK headers. The Darwin
++    // extension is available on the macOS versions supported by Chromium.
++    DPSXCHECK(posix_spawn_file_actions_addchdir_np(&file_actions_, path));
++#endif
+   }
+ #endif
+ 
+diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
+index ccfe9692ba..b3b3bc4235 100644
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -131,6 +131,9 @@ declare_args() {
+   # The cache can lead to non-determinism: https://crbug.com/1486045
+   thin_lto_enable_cache = true
+ 
++  # Local low-memory Mac build: 0 retains the upstream parallelism default.
++  thin_lto_backend_jobs = 0
++
+   # Initialize all local variables with a pattern. This flag will fill
+   # uninitialized floating-point types (and 32-bit pointers) with 0xFF and the
+   # rest with 0xAA. This makes behavior of uninitialized memory bugs consistent,
+@@ -835,7 +838,11 @@ config("compiler") {
+       # and let it use all cores.
+       # TODO(thakis): Check if '=0' (that is, number of cores, instead
+       # of "all" which means number of hardware threads) is faster.
+-      ldflags += [ "-Wl,--thinlto-jobs=all" ]
++      if (is_mac && thin_lto_backend_jobs > 0) {
++        ldflags += [ "-Wl,--thinlto-jobs=$thin_lto_backend_jobs" ]
++      } else {
++        ldflags += [ "-Wl,--thinlto-jobs=all" ]
++      }
+ 
+       if (is_chromeos) {
+         # ARM was originally set lower than x86 to keep the size
+diff --git a/chrome/browser/ui/views/frame/browser_native_widget_mac.mm b/chrome/browser/ui/views/frame/browser_native_widget_mac.mm
+index 03f7acd0bf..40d732c298 100644
+--- a/chrome/browser/ui/views/frame/browser_native_widget_mac.mm
++++ b/chrome/browser/ui/views/frame/browser_native_widget_mac.mm
+@@ -142,6 +142,7 @@ int GetGlassCornerPadding() {
+ 
+ }  // namespace
+ 
++#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 260000
+ // NSGlassEffectView intercepts hit testing even when added below the
+ // WebContents NSViews. Returning nil here lets clicks pass through to the
+ // sibling subviews that are supposed to receive them.
+@@ -154,6 +155,7 @@ - (NSView*)hitTest:(NSPoint)point {
+   return nil;
+ }
+ @end
++#endif
+ 
+ @interface OpaqueFrameBackgroundView : NSView
+ @end
+@@ -940,6 +942,10 @@ - (NSTouchBar*)makeTouchBar {
+ }
+ 
+ void BrowserNativeWidgetMac::UpdateGlassEligibility(bool is_glass_eligible) {
++#if __MAC_OS_X_VERSION_MAX_ALLOWED < 260000
++  // Older SDKs lack the AppKit class symbol, so glass windows are unavailable.
++  is_glass_eligible = false;
++#endif
+   if (!GetNSWindowHost()) {
+     return;
+   }
+@@ -977,6 +983,7 @@ - (NSTouchBar*)makeTouchBar {
+     return;
+   }
+ 
++#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 260000
+   if (@available(macOS 26.0, *)) {
+     [ns_window setOpaque:NO];
+ 
+@@ -1025,6 +1032,7 @@ - (NSTouchBar*)makeTouchBar {
+     UpdateBackgroundGeometry();
+     UpdateBackgroundColor();
+   }
++#endif
+ }
+ 
+ void BrowserNativeWidgetMac::UpdateBackgroundGeometry() {
+diff --git a/components/remote_cocoa/app_shim/native_widget_ns_window_bridge.mm b/components/remote_cocoa/app_shim/native_widget_ns_window_bridge.mm
+index 74e0a36205..3f3b1b805a 100644
+--- a/components/remote_cocoa/app_shim/native_widget_ns_window_bridge.mm
++++ b/components/remote_cocoa/app_shim/native_widget_ns_window_bridge.mm
+@@ -115,11 +115,13 @@ bool IsBackgroundEffectView(NSView* view) {
+     return true;
+   }
+ 
++#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 260000
+   if (@available(macOS 26, *)) {
+     if ([view isKindOfClass:[NSGlassEffectView class]]) {
+       return true;
+     }
+   }
++#endif
+ 
+   if ([view.identifier
+           isEqualToString:remote_cocoa::kOpaqueFrameBackgroundViewIdentifier]) {
+diff --git a/ui/accelerated_widget_mac/ca_renderer_layer_tree.mm b/ui/accelerated_widget_mac/ca_renderer_layer_tree.mm
+index 2db39f3ccf..016e1bc9e9 100644
+--- a/ui/accelerated_widget_mac/ca_renderer_layer_tree.mm
++++ b/ui/accelerated_widget_mac/ca_renderer_layer_tree.mm
+@@ -54,11 +54,13 @@
+ BASE_FEATURE(kUseCALayerContentsHeadroom, base::FEATURE_ENABLED_BY_DEFAULT);
+ 
+ bool UseCALayerContentsHeadroom() {
++#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 260000
+   if (@available(macOS 26, iOS 26, *)) {
+     static bool feature_enabled =
+         base::FeatureList::IsEnabled(kUseCALayerContentsHeadroom);
+     return feature_enabled;
+   }
++#endif
+   return false;
+ }
+ 
+@@ -1278,6 +1280,7 @@ const auto av_rect(
+       break;
+   }
+ 
++#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 260000
+   if (UseCALayerContentsHeadroom() && update_contents) {
+     if (@available(macOS 26, iOS 26, *)) {
+       if (io_surface_color_space_.IsHDR()) {
+@@ -1293,6 +1296,7 @@ const auto av_rect(
+       }
+     }
+   }
++#endif
+ 
+   if (update_contents_rect) {
+     if (type_ != CALayerType::kVideo)
+diff --git a/ui/display/mac/screen_utils_mac.mm b/ui/display/mac/screen_utils_mac.mm
+index 7215ee02b2..f5e9aaa8ea 100644
+--- a/ui/display/mac/screen_utils_mac.mm
++++ b/ui/display/mac/screen_utils_mac.mm
+@@ -8,13 +8,10 @@
+ 
+ NSScreen* GetNSScreenFromDisplayID(CGDirectDisplayID display_id) {
+   for (NSScreen* screen in NSScreen.screens) {
+-    CGDirectDisplayID screen_display_id = kCGNullDirectDisplay;
+-    if (@available(macOS 26, *)) {
+-      screen_display_id = screen.CGDirectDisplayID;
+-    } else {
+-      screen_display_id =
+-          [screen.deviceDescription[@"NSScreenNumber"] unsignedIntValue];
+-    }
++    // The CGDirectDisplayID NSScreen property is only declared in the macOS
++    // 26 SDK. The classic deviceDescription key works across supported macOS.
++    CGDirectDisplayID screen_display_id =
++        [screen.deviceDescription[@"NSScreenNumber"] unsignedIntValue];
+     if (screen_display_id == display_id) {
+       return screen;
+     }
