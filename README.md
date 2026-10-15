@@ -1,31 +1,18 @@
-# Brave for macOS 12 (Intel, Metal)
+# Brave for macOS 12 (Intel)
 
-An independently built Brave 155 release for Intel Macs running macOS 12 or later. This repository records the build recipe, the small macOS SDK compatibility patches, and the exact released binary. The binary is attached to the GitHub Release, not stored in Git.
+Independent Brave 155.1.97.0 builds for Intel Macs on macOS 12. The binary is distributed as a GitHub Release asset; this repository contains the build recipe and source patches, not a Chromium source mirror.
 
-**Download:** [v155.1.97.0-macos12-metal](https://github.com/amstel8/brave-macos12/releases/tag/v155.1.97.0-macos12-metal)
+## Releases
 
-- Brave `155.1.97.0`; Chromium `155.0.8059.40`
-- Source: Brave tag `v1.97.56` (`b01cdf43be4b4d5559bf7e58229e666e24454f50`)
-- Intel x86_64; minimum macOS `12.0`
-- Uses ANGLE Metal / Graphite Dawn Metal where supported; this release does not restore OpenGL
-- Unpacked app size: approximately 572 MiB
+- [Metal build, v155.1.97.0-macos12-metal](https://github.com/amstel8/brave-macos12/releases/tag/v155.1.97.0-macos12-metal) — Metal path, verified on an AMD Radeon RX 6800 XT.
+- [OpenGL build, v155.1.97.0-macos12-opengl](https://github.com/amstel8/brave-macos12/releases/tag/v155.1.97.0-macos12-opengl); ANGLE OpenGL/GaneshGL was verified on an NVIDIA GeForce 320M running macOS 12.7.6.
 
-This build is unsigned and not notarized. `is_official_build=true` describes Chromium build optimization settings only; Brave Software did not build, sign, endorse, or notarize this artifact. Proprietary service credentials unavailable to this independent build are placeholders, so services requiring those credentials may not work.
+Both target x86_64, require macOS 12.0 or later, use Brave v1.97.56 and Chromium 155.0.8059.40, and were built with PGO and optimized ThinLTO. Both are unsigned and not notarized. is_official_build=true describes Chromium build configuration only; neither binary was built, signed, endorsed, or notarized by Brave Software. Credentials needed for proprietary services were unavailable and placeholders were used; those services may not work.
 
-## Install
+The OpenGL build leaves Metal as the default. On a non-Metal Mac, select OpenGL at brave://flags/#use-angle and restart. The old GPU path is GLES2 compatible; WebGL 1 is verified, while WebGL 2 is unsupported on the tested GeForce 320M. For that OpenGL mode, the New Tab page turns off backdrop blur to avoid a verified legacy rendering defect; the background, widgets, GPU compositing, and rasterization remain enabled.
 
-Download the `.tar.gz` and matching `.sha256` from Releases. Verify the archive before extracting:
+## Why this repository is small
 
-```sh
-shasum -a 256 -c brave-macos12-x64-155.1.97.0-official.tar.gz.sha256
-```
+It records 23 modified source files as four focused patches: 6 Chromium macOS SDK/build files, 1 Brave profile-path adjustment, 14 Chromium OpenGL/IOSurface files, and 2 Brave New Tab backdrop files. Chromium and Brave themselves are fetched from their upstream pinned revisions during setup; mirroring their many gigabytes of source would obscure these changes and duplicate their licensing and release process.
 
-Quit Brave before replacing it. Back up the existing app and the profile directory `~/Library/Application Support/BraveSoftware/Brave-Browser` first. Move the extracted `Brave Browser.app` into `/Applications`. For rollback, restore the old app and its matching profile together; a newer browser may migrate profile data.
-
-## Hardware and validation limits
-
-The release was verified on macOS 12.7.6 with an AMD Radeon RX 6800 XT: ANGLE Metal / GraphiteDawnMetal, GPU compositing, rasterization and video decode were enabled, with zero GPU crashes in diagnostic launches. A GeForce 320M without Metal falls back to software rendering. Do not assume GPU acceleration on non-Metal Macs, OpenCore Legacy Patcher systems, or other untested GPUs. OpenGL compatibility changes are intentionally excluded.
-
-A controlled synthetic layout/rendering comparison measured 3.246 ms mean layout and 53.5–53.6 FPS for this build, versus 3.380 ms and 50.1–53.3 FPS for Brave 150. The workload used 3,500 flex-layout elements and controlled profiles, fonts, viewport and launch order. These results do not predict every site's performance. YouTube Shorts volume-control interaction was not validated.
-
-See [build and patch notes](docs/BUILD.md) and [release notes](docs/RELEASE.md).
+See [build instructions and patch inventory](docs/BUILD.md), [OpenGL notes and validation](docs/OPENGL.md), and [Metal release notes](docs/RELEASE.md).

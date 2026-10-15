@@ -1,42 +1,49 @@
-# Build recipe and patch inventory
+# macOS 12 build recipe and patch inventory
 
-## Source and toolchain
+## Pinned source and tools
 
-Use Brave `v1.97.56` (`b01cdf43be4b4d5559bf7e58229e666e24454f50`) and its pinned Chromium source `155.0.8059.40` (`cfaadc5a132d78e1828635aa8405a499f3e14864`). Follow Brave's official macOS build prerequisites and `brave-browser` setup/sync instructions; this repository does not mirror Chromium or Brave source. The verified build used Node 24.21.0, pnpm 11.28.5, depot_tools, macOS SDK 15.5, and Xcode 14.2 host tools. The SDK path and output directory are machine-specific; point GN at a local SDK path valid for your checkout. Keep the deployment and minimum system versions at 12.0 and target CPU at x64.
+Use Brave v1.97.56 (b01cdf43be4b4d5559bf7e58229e666e24454f50) and its pinned Chromium 155.0.8059.40 (cfaadc5a132d78e1828635aa8405a499f3e14864). Follow Brave's documented macOS prerequisites and brave-browser dependency-sync workflow. The source checkout and its third-party dependencies are intentionally fetched upstream; this repository contains patches and release assets, not a Chromium fork. Tested tools: Node 24.21.0, pnpm 11.28.5, depot_tools, macOS SDK 15.5 and Xcode 14.2 host tools. Point GN to a valid local SDK path. Target x64 and macOS 12.0.
 
-For reproducible source retrieval, check out the Brave tag, sync the pinned dependencies using Brave's documented workflow, and apply the patches below in order:
+## Apply patches
 
-1. From Chromium `src/`, apply `patches/chromium-macos12-sdk-compat.patch` with `git apply`.
-2. From Chromium `src/`, apply `patches/brave-stable-profile-directory.patch` with `git apply`.
+1. From Chromium src/, apply patches/chromium-macos12-sdk-compat.patch.
+2. From Chromium src/, apply patches/brave-stable-profile-directory.patch; it edits the embedded src/brave/build/config.gni.
+3. For the Metal build, stop here. For OpenGL, also apply patches/chromium-macos12-opengl-compat.patch from src/, then change to src/brave/ and apply patches/brave-opengl-newtab-backdrop.patch there.
 
-The Brave patch changes `src/brave/build/config.gni`, which is part of the Brave source checkout embedded in `src/`. Check whether Brave's setup scripts overwrite it after patching. Do not apply the unrelated OpenGL experiment from the original private build workspace.
+The patch paths are relative to different repositories: Chromium patches apply in src/; Brave patches apply in src/brave/. Apply OpenGL patches only as a pair. Check whether Brave setup scripts overwrite src/brave/build/config.gni after patching.
 
-Generate `out/ReleaseOfficial` with the following relevant GN arguments, retaining Brave's normal branding and the generated PGO profile paths:
+The patches cover 23 changed source files (6 macOS SDK/build, 1 Brave stable-profile, 14 OpenGL/IOSurface, and 2 OpenGL New Tab backdrop). They are intentionally small: most build effort was upstream source/dependency synchronization, downloading and checking in-source PGO profiles, GN configuration, the macOS 15.5 SDK with Xcode 14.2 host tools, and compiling/linking the original Brave/Chromium tree.
 
-```gn
-target_cpu = "x64"
-mac_deployment_target = "12.0"
-mac_min_system_version = "12.0"
-is_official_build = true
-is_debug = false
-is_component_build = false
-dcheck_always_on = false
-enable_expensive_dchecks = false
-chrome_pgo_phase = 2
-use_thin_lto = true
-thin_lto_enable_optimizations = true
-thin_lto_backend_jobs = 4
-init_stack_vars_zero = true
-use_prebuilt_omaha4 = false
-```
+## GN configuration
 
-Use the source-pinned macOS and V8 PGO profiles. Four ThinLTO backend jobs was the tested memory limit for the 32 GB build host, not a universal performance setting. Official GN configuration used the normal Chromium options for disabling iterator debugging, Viz debugger, Brave PageGraph WebAPI probes, and IPC fuzzing. Service credential values needed only to satisfy unavailable local GN assertions were dummy placeholders, not working credentials. Never publish credentials.
+Generate an x64 ReleaseOfficial output using the source-pinned macOS and V8 PGO profiles and these relevant arguments:
 
-Then run GN generation and Brave's documented build target for the release app (the successful build used `autoninja -C out/ReleaseOfficial brave`). Build duration was about 12 hours on the tested host. The resulting app should report version `155.1.97.0` and minimum macOS `12.0`. Keep signing and notarization claims separate: this artifact is unsigned and unnotarized.
+    target_cpu = "x64"
+    mac_deployment_target = "12.0"
+    mac_min_system_version = "12.0"
+    is_official_build = true
+    is_debug = false
+    is_component_build = false
+    dcheck_always_on = false
+    enable_expensive_dchecks = false
+    chrome_pgo_phase = 2
+    use_thin_lto = true
+    thin_lto_enable_optimizations = true
+    thin_lto_backend_jobs = 4
+    symbol_level = 0
+    blink_symbol_level = 0
+    init_stack_vars_zero = true
+    use_prebuilt_omaha4 = false
 
-## Included patches
+The successful 32 GB host used four ThinLTO backend jobs to stay within its memory limit. This is not a universal value. The official configuration also disabled iterator debugging, the Viz debugger, Brave PageGraph WebAPI probes, and IPC fuzzing; enabled zero stack initialization; and kept the source-built updater. Credentials added only to satisfy unavailable local GN assertions were dummy placeholders, never publish real service credentials.
 
-- `chromium-macos12-sdk-compat.patch`: use the older SDK-compatible `posix_spawn_file_actions_addchdir_np`; use `NSScreen.deviceDescription` for display IDs; compile-time guard macOS 26 HDR/AppKit APIs when building with older SDKs; cap ThinLTO backend jobs through a GN setting defaulting to upstream's unlimited behavior (`0`).
-- `brave-stable-profile-directory.patch`: select the stable Brave product directory rather than `-Development`, so the release uses the expected stable profile location.
+Use Brave's build wrapper to generate and build the brave target. The verified command used its Release/ReleaseOfficial configuration, macOS x64, --skip_signing, and 12 Ninja jobs. Equivalent toolchain, SDK, profiles, and GN args are required; local absolute paths are not portable. The clean official build completed 61,859 steps in about 12h13m on the 32 GB Mac Pro. The later OpenGL and New Tab changes reused that output; the final OpenGL backdrop rebuild completed 22 steps in 5m28s (link 4m42s). A fresh machine will perform the full build.
 
-The source code belongs to the upstream Chromium and Brave projects and retains their respective licenses and notices. This repository provides modifications only; it does not relicense upstream code or bundle upstream source. Consult the [Chromium license](https://chromium.googlesource.com/chromium/src/+/main/LICENSE) and [Brave license](https://github.com/brave/brave-browser/blob/master/LICENSE) for source licensing terms.
+## Patch contents
+
+- chromium-macos12-sdk-compat.patch (6 files): older-SDK posix_spawn_file_actions_addchdir_np, macOS screen-ID lookup through NSScreen.deviceDescription, guards for macOS 26 HDR/AppKit symbols, and a configurable ThinLTO backend-job limit.
+- brave-stable-profile-directory.patch (1 file): use Brave's stable profile directory, not -Development.
+- chromium-macos12-opengl-compat.patch (14 files): allow the existing ANGLE CGL backend; expose the OpenGL flag; use Ganesh for explicit OpenGL; scoped GLES2 fallback; restore rectangle IOSurface texture-target capability, IPC propagation, selection and tests.
+- brave-opengl-newtab-backdrop.patch (2 files): disable backdrop blur only on New Tab in explicit macOS OpenGL mode to avoid the GeForce 320M corruption.
+
+The code is derived from Chromium and Brave and remains under their upstream licenses. This repository provides modifications only; it does not relicense or vendor their source. See upstream Chromium and Brave licensing at https://github.com/brave/brave-browser/blob/master/LICENSE.
