@@ -1,4 +1,4 @@
-# Brave for macOS 12 (Intel)
+# Brave and Electron for macOS 12 (Intel)
 
 Independent Brave 155.1.97.0 builds for Intel Macs on macOS 12. The binary is distributed as a GitHub Release asset; this repository contains the build recipe and source patches, not a Chromium source mirror.
 
@@ -16,3 +16,7 @@ The OpenGL build leaves Metal as the default. On a non-Metal Mac, select OpenGL 
 It records 23 modified source files as four focused patches: 6 Chromium macOS SDK/build files, 1 Brave profile-path adjustment, 14 Chromium OpenGL/IOSurface files, and 2 Brave New Tab backdrop files. Chromium and Brave themselves are fetched from their upstream pinned revisions during setup; mirroring their many gigabytes of source would obscure these changes and duplicate their licensing and release process.
 
 See [build instructions and patch inventory](docs/BUILD.md), [OpenGL notes and validation](docs/OPENGL.md), and [Metal release notes](docs/RELEASE.md).
+
+## Electron
+
+[Electron 44.7.2 / Chromium 152 macOS 12 x64](https://github.com/amstel8/brave-macos12/releases/tag/electron-v44.7.2-macos12-x64) is an experimental compatibility build with automatic OpenGL selection when no Metal device exists. Its independent patches, exact GN configuration, SDK compatibility declarations and build recipe are in [electron/](electron/). Node-mode startup on macOS 12 has been verified; non-Metal GUI/GPU validation remains pending.

@@ -2,3 +2,5 @@
 *.log
 out/
 *.tar.gz
+
+artifacts/

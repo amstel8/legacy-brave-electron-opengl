@@ -1,0 +1,52 @@
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -51,7 +51,7 @@
+   import("build/rules.gni")
+ 
+   assert(
+-      mac_deployment_target == "13.0",
++      (mac_deployment_target == "12.0" || mac_deployment_target == "13.0"),
+       "Chromium has updated the mac_deployment_target, please update this assert and flag this as a breaking change (docs/breaking-changes.md)")
+ }
+ 
+@@ -702,6 +702,7 @@
+       "AVFoundation.framework",
+       "Carbon.framework",
+       "LocalAuthentication.framework",
++      "Metal.framework",
+       "QuartzCore.framework",
+       "Quartz.framework",
+       "Security.framework",
+--- a/shell/app/electron_library_main.mm
++++ b/shell/app/electron_library_main.mm
+@@ -1,6 +1,8 @@
+ // Copyright (c) 2013 GitHub, Inc.
+ // Use of this source code is governed by the MIT license that can be
+ // found in the LICENSE file.
++
++#import <Metal/Metal.h>
+ 
+ #include <utility>
+ 
+@@ -25,6 +27,21 @@
+   argv = uv_setup_args(argc, argv);
+   base::CommandLine::Init(argc, argv);
+   electron::ElectronCommandLine::Init(argc, argv);
++
++  auto* command_line = base::CommandLine::ForCurrentProcess();
++  if (!command_line->HasSwitch("type") &&
++      !command_line->HasSwitch("use-angle") &&
++      !command_line->HasSwitch("use-gl") &&
++      !command_line->HasSwitch("disable-gpu")) {
++    @autoreleasepool {
++      id<MTLDevice> device = MTLCreateSystemDefaultDevice();
++      if (!device) {
++        // Non-Metal Macs can retain GPU compositing through ANGLE/CGL.
++        // This switch also selects Ganesh rather than Metal-only Graphite.
++        command_line->AppendSwitchASCII("use-angle", "gl");
++      }
++    }
++  }
+ 
+   electron::ElectronMainDelegate delegate;
+ 

@@ -1,0 +1,26 @@
+import("//electron/build/args/release.gn")
+target_os = "mac"
+target_cpu = "x64"
+mac_deployment_target = "12.0"
+mac_min_system_version = "12.0"
+mac_sdk_min = "13"
+mac_sdk_path = "//out/ReleaseMacOS12/sdk/MacOSX15.5.sdk"
+mac_allow_system_xcode_for_official_builds_for_testing = true
+is_official_build = true
+is_debug = false
+is_component_build = false
+dcheck_always_on = false
+enable_expensive_dchecks = false
+chrome_pgo_phase = 2
+use_thin_lto = true
+thin_lto_enable_optimizations = true
+thin_lto_backend_jobs = 4
+symbol_level = 0
+blink_symbol_level = 0
+use_clang_modules = false
+use_unified_system_module = false
+clang_use_chrome_plugins = false
+treat_warnings_as_errors = false
+enable_precompiled_headers = false
+use_remoteexec = false
+use_siso = true

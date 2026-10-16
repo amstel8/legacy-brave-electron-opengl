@@ -1,0 +1,13 @@
+diff --git a/DEPS b/DEPS
+index 042f4c2ba2..225d4664c5 100644
+--- a/DEPS
++++ b/DEPS
+@@ -163,7 +163,7 @@ hooks = [
+     'action': [
+       'python3',
+       '-c',
+-      'import os, subprocess; os.chdir(os.path.join("src", "electron")); subprocess.check_call(["node", ".yarn/releases/yarn-4.18.0.cjs", "install", "--immutable"]);',
++      'import os, subprocess; os.chdir(os.path.join("src", "electron")); subprocess.check_call(["node", ".yarn/releases/yarn-4.18.0.cjs", "install", "--immutable", "--mode=skip-build"]);',
+     ],
+   },
+   {
