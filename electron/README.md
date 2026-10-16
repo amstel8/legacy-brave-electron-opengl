@@ -8,7 +8,7 @@ Independent compatibility build, targeting x86_64 and macOS 12.0. Electron commi
 
 Archive: electron-v44.7.2-macos12-darwin-x64.zip. SHA-256: f513ed330cc170a1339ce264db947d7bfaf39dcf726852c92c57bd8025136de7.
 
-Compilation and distribution ZIP completed successfully in approximately 10h06m on a 32 GB Intel Mac Pro. The engine runs on macOS 12 in ELECTRON_RUN_AS_NODE mode and reports the pinned versions. Pritunl 1.4.4777.90 has been compiled and packaged with this engine. Full GUI/GPU validation on a non-Metal Mac remains pending. This is an experimental third-party port, without Developer ID signing or notarization.
+Compilation and distribution ZIP completed successfully in approximately 10h06m on a 32 GB Intel Mac Pro. The engine runs on macOS 12 in ELECTRON_RUN_AS_NODE mode and reports the pinned versions. Pritunl 1.4.4777.90 has been compiled and packaged with this engine. Initial Pritunl GUI startup was also verified on a non-Metal MacBookPro7,1 running macOS 12.7.6: its GPU child automatically receives --use-angle=gl without manually forcing the backend. Extended rendering/GPU stability and VPN connection testing remain pending. This is an experimental third-party port, without Developer ID signing or notarization.
 
 ## Rendering behavior
 

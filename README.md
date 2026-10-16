@@ -19,4 +19,4 @@ See [build instructions and patch inventory](docs/BUILD.md), [OpenGL notes and v
 
 ## Electron
 
-[Electron 44.7.2 / Chromium 152 macOS 12 x64](https://github.com/amstel8/brave-macos12/releases/tag/electron-v44.7.2-macos12-x64) is an experimental compatibility build with automatic OpenGL selection when no Metal device exists. Its independent patches, exact GN configuration, SDK compatibility declarations and build recipe are in [electron/](electron/). Node-mode startup on macOS 12 has been verified; non-Metal GUI/GPU validation remains pending.
+[Electron 44.7.2 / Chromium 152 macOS 12 x64](https://github.com/amstel8/brave-macos12/releases/tag/electron-v44.7.2-macos12-x64) is an experimental compatibility build with automatic OpenGL selection when no Metal device exists. Its independent patches, exact GN configuration, SDK compatibility declarations and build recipe are in [electron/](electron/). Node-mode startup and initial Pritunl GUI startup on a non-Metal MacBookPro7,1 have been verified; its GPU child automatically uses OpenGL. Extended rendering/GPU stability and VPN checks remain pending.
