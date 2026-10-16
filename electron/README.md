@@ -4,7 +4,7 @@ Independent compatibility build, targeting x86_64 and macOS 12.0. Electron commi
 
 ## Download and status
 
-[Electron v44.7.2 macOS 12 x64 release](https://github.com/amstel8/brave-macos12/releases/tag/electron-v44.7.2-macos12-x64)
+[Electron v44.7.2 macOS 12 x64 release](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v44.7.2-macos12-x64)
 
 Archive: electron-v44.7.2-macos12-darwin-x64.zip. SHA-256: f513ed330cc170a1339ce264db947d7bfaf39dcf726852c92c57bd8025136de7.
 
