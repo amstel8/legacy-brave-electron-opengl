@@ -1,6 +1,6 @@
 # Brave 1.97.59: macOS 12 x64 with Metal and automatic OpenGL
 
-Build requested 2026-10-18. Latest stable checked against brave/brave-browser releases: v1.97.59 (published 2026-10-16), Chromium 155.0.8059.85. Previous validated binaries use Brave v1.97.56 / Chromium 155.0.8059.40.
+Build requested 2026-10-18. Latest stable checked against brave/brave-browser releases: v1.97.59 (published 2026-10-16), Chromium 155.0.8059.85. Pinned Brave Core commit: `c7357bfd2a76c2467ba1ae62593a81ae92c05205`; Chromium commit: `0e66b94549a8bd85f03fbdf189b752d6e7b63c32`. Previous validated binaries use Brave v1.97.56 / Chromium 155.0.8059.40.
 
 ## Package and backend selection
 
@@ -27,3 +27,15 @@ Persistent status on the build Mac Pro:
 - `logs/brave-1.97.59-build-unified.exit`: compiler wrapper exit code.
 
 Detached nohup/caffeinate workers continue after SSH disconnect. Current status is taken from these files; this document does not claim that compilation or runtime validation has completed. Runtime checks should cover Metal and non-Metal GUI startup, actual renderer backend, ordinary pages, New Tab native-window rendering and WebGL1 before publishing a new binary.
+
+## Small sync optimization and disk cleanup
+
+For an existing shallow Chromium checkout, fetch the new tag explicitly first:
+
+```sh
+git -C src fetch --depth=1 origin refs/tags/155.0.8059.85:refs/tags/155.0.8059.85
+```
+
+The optional build-tool patch `patches/brave-sync-exact-revision.patch` applies inside src/brave before source sync. It resolves an already available Chromium tag to its exact SHA before passing --revision to gclient; this avoids gclient's unconditional upstream fetch for a tag-valued revision. It does not change the selected commit. Use the normal fallback behavior if the tag is not yet available. Existing installed JavaScript build dependencies were reused after checking that the sync modules load; npm metadata requests were timing out. The lockfile was not edited.
+
+Removed 35.04 GiB of historical out/Release, out/ReleasePGO and out/OfficialAudit outputs on the build Mac. SDK subdirectories and their symlink chain were explicitly retained. Previous GN argument files were saved in docs/cleanup-20261018-233828. Current ReleaseOfficial, Electron and source/tool caches were preserved. Free space after cleanup was approximately 465 GiB, with sync active.

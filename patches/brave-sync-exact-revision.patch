@@ -1,0 +1,15 @@
+diff --git a/build/commands/lib/syncUtils.js b/build/commands/lib/syncUtils.js
+index d869196ec..d41a70444 100644
+--- a/build/commands/lib/syncUtils.js
++++ b/build/commands/lib/syncUtils.js
+@@ -213,7 +213,9 @@ function syncChromium(program) {
+ 
+   if (!gclientWithoutRevision) {
+     args.push('--revision')
+-    args.push('src@' + requiredChromiumRef)
++    // Resolve the already-fetched tag to avoid gclient fetching all upstream history.
++    const resolvedRef = util.runGit(config.srcDir, ['rev-parse', requiredChromiumRef], true)
++    args.push('src@' + (resolvedRef || requiredChromiumRef))
+   }
+ 
+   if (program.fetch_all) {
