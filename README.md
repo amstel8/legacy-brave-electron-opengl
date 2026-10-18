@@ -2,6 +2,12 @@
 
 Independent Brave 155.1.97.0 and Electron 44.7.2 builds for Intel Macs on macOS 12, with Metal support and ANGLE OpenGL compatibility for older GPUs. Release assets contain the binaries; this repository contains source patches, SDK compatibility declarations and build instructions.
 
+## Next Brave build: 1.97.59 with automatic OpenGL
+
+The macOS 12 x64 recipe is being updated to Brave v1.97.59 / Chromium 155.0.8059.85. A single package retains Metal on supported GPUs and selects ANGLE OpenGL when no Metal device exists. This means one Intel binary with two rendering paths, not a Universal 2 (Intel + Apple Silicon) binary. Previously published releases remain available below; the new build is not yet a validated release.
+
+See [the unified build notes](docs/UNIFIED-1.97.59.md). The additional [startup patch](patches/chromium-macos12-auto-opengl.patch) is applied after the existing compatibility patches.
+
 ## Releases
 
 - [Electron 44.7.2, macOS 12 x64](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v44.7.2-macos12-x64) — automatically selects OpenGL when no Metal device exists.
