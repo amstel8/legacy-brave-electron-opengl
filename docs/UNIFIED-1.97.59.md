@@ -52,4 +52,10 @@ Compared the installed v1.97.56 build with the v1.97.59 candidate on the same ma
 
 Installed the candidate on the local Mac after the comparison. Preserved the complete prior application and stable profile; 13 important profile/session files matched the backup by SHA-256 before app replacement. The active profile retained all 2,740 cookies after relaunch. User data is not included in this repository. The app and GPU child launched; no forced OpenGL/software flag was present. Both old and new apps retain bundle version 155.1.97.0 under the existing local development-version convention, so source revisions and framework hashes identify the builds.
 
-Raw local comparison evidence: Library/Caches/BraveBuildTransfer/gpu-diagnostics/brave-1.97.59-compare-1792402876081. Comparison scripts/results remain there. The new automatic non-Metal path has not yet been runtime-tested on the MacBook; new binary release publication remains pending.
+Raw local comparison evidence: Library/Caches/BraveBuildTransfer/gpu-diagnostics/brave-1.97.59-compare-1792402876081. Comparison scripts/results remain there. The automatic non-Metal path was subsequently validated on the MacBook; see the deployment record below and RELEASE-1.97.59.md.
+
+## MacBook validation and deployment — 2026-10-19
+
+Validated the exact same candidate archive/framework on MacBookPro7,1 / NVIDIA GeForce 320M / OCLP macOS 12.7.6. The isolated GUI-session launch had no --use-angle or --use-gl argument; the GPU child automatically selected --use-angle=gl. SystemInfo reported ANGLE OpenGL 3.3, Ganesh, enabled compositing/rasterization and zero GPU crashes. WebGL1 returned [51,102,204,255] with GL error 0. The compiled New Tab page reported legacyOpenGL=true and backdrop-filter:none; native captures confirmed the expected background. Local evidence on the MacBook: gpu-diagnostics/unified-1.97.59-auto-opengl-1792403240456.
+
+Installed via the existing stable profile path, with complete old-app/profile backup at Library/Application Support/BraveBuildBackups/unified-1.97.59-20261019-124750. Twelve important profile/session files were checked before replacement. After a launch through a one-shot GUI-domain open job, both saved and active profiles contained 397 cookies. The browser and OpenGL GPU child remained running. Existing user flags were retained.

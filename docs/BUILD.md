@@ -1,5 +1,7 @@
 # macOS 12 build recipe and patch inventory
 
+For the current v1.97.59 release with automatic Metal/OpenGL selection, see [UNIFIED-1.97.59.md](UNIFIED-1.97.59.md) and [release notes](RELEASE-1.97.59.md). The older pinned versions and manual OpenGL steps below describe the original v1.97.56 builds.
+
 ## Pinned source and tools
 
 Use Brave v1.97.56 (b01cdf43be4b4d5559bf7e58229e666e24454f50) and its pinned Chromium 155.0.8059.40 (cfaadc5a132d78e1828635aa8405a499f3e14864). Follow Brave's documented macOS prerequisites and brave-browser dependency-sync workflow. The source checkout and its third-party dependencies are intentionally fetched upstream; this repository contains patches and release assets, not a Chromium fork. Tested tools: Node 24.21.0, pnpm 11.28.5, depot_tools, macOS SDK 15.5 and Xcode 14.2 host tools. Point GN to a valid local SDK path. Target x64 and macOS 12.0.

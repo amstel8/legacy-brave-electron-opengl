@@ -1,5 +1,7 @@
 # OpenGL compatibility build
 
+For the current v1.97.59 release with automatic Metal/OpenGL selection, see [UNIFIED-1.97.59.md](UNIFIED-1.97.59.md) and [release notes](RELEASE-1.97.59.md). The older pinned versions and manual OpenGL steps below describe the original v1.97.56 builds.
+
 ## What it changes
 
 Apply patches/chromium-macos12-opengl-compat.patch at the Chromium src/ root. It permits ANGLE's existing CGL/OpenGL backend while keeping Metal first/default; adds a macOS brave://flags/#use-angle choice; uses Skia Ganesh instead of the Metal-only Graphite/Dawn path for explicit OpenGL; and allows GLES2 fallback when this explicit legacy backend cannot create GLES3. The fallback is limited to explicit --use-angle=gl; default Metal behavior is unchanged.
