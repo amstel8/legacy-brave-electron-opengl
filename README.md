@@ -4,7 +4,7 @@ Independent Brave 155.1.97.0 and Electron 44.7.2 builds for Intel Macs on macOS 
 
 ## Next Brave build: 1.97.59 with automatic OpenGL
 
-The macOS 12 x64 recipe is being updated to Brave v1.97.59 / Chromium 155.0.8059.85. A single package retains Metal on supported GPUs and selects ANGLE OpenGL when no Metal device exists. This means one Intel binary with two rendering paths, not a Universal 2 (Intel + Apple Silicon) binary. Previously published releases remain available below; the new build is not yet a validated release.
+The macOS 12 x64 build of Brave v1.97.59 / Chromium 155.0.8059.85 completed successfully and passed a local Metal performance comparison against v1.97.56. A single package retains Metal on supported GPUs and selects ANGLE OpenGL when no Metal device exists. This means one Intel binary with two rendering paths, not a Universal 2 (Intel + Apple Silicon) binary. Previously published releases remain available below; the new build is not yet a validated release.
 
 See [the unified build notes](docs/UNIFIED-1.97.59.md). The additional [startup patch](patches/chromium-macos12-auto-opengl.patch) is applied after the existing compatibility patches.
 

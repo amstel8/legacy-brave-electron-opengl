@@ -43,3 +43,13 @@ Removed 35.04 GiB of historical out/Release, out/ReleasePGO and out/OfficialAudi
 ## Compilation started
 
 Source sync and hooks completed successfully. All compatibility patches applied without conflicts. The new source-pinned Chrome profile and V8 15.5.35.25 profiles were downloaded with V8 revision validation. GN preflight and a second check after Brave's build wrapper verified the intended official/PGO/ThinLTO settings and actual Blink OFFICIAL_BUILD, -O2, -flto=thin, -fprofile-use and zero-init compiler flags. Compilation is running detached in ReleaseOfficial (build id a5872ca3-0ae6-48c0-add8-723e5d7e7dee); the first observed progress was 289 completed actions with a dynamically pruned graph of approximately 82,000 actions. This is startup progress, not a completion or runtime validation result.
+
+## Completed build and local performance comparison — 2026-10-19
+
+Build succeeded with exit 0: 59,661 steps in 12h09m37s. Final app size is approximately 572 MiB. Framework SHA-256: `cb470ea3eaeb63691a7ad370305991f96dd85e05f90972ac29e6e56d62905517`. Transfer archive SHA-256: `3edb6e6c88e84490cf4474f1d74652de236d98e43d9efcaa204e140e15b85599`.
+
+Compared the installed v1.97.56 build with the v1.97.59 candidate on the same macOS 12 Intel Mac with Radeon RX 6800 XT. Used separate test profiles, identical Arial/DOM/root geometry and viewport between builds, warmed layout loops, six layout samples per build, and launch order old/new/new/old. Mean synchronous layout: previous 3.20456 ms, candidate 3.17956 ms (0.78% lower). Two 120-frame synthetic animation samples per build averaged 51.66 versus 53.31 FPS. Background system activity was present, so these small differences are not evidence of a general performance improvement. No regression appeared in these workloads. Both reported ANGLE Metal, GraphiteDawnMetal, enabled GPU compositing/rasterization, and zero GPU crashes.
+
+Installed the candidate on the local Mac after the comparison. Preserved the complete prior application and stable profile; 13 important profile/session files matched the backup by SHA-256 before app replacement. The active profile retained all 2,740 cookies after relaunch. User data is not included in this repository. The app and GPU child launched; no forced OpenGL/software flag was present. Both old and new apps retain bundle version 155.1.97.0 under the existing local development-version convention, so source revisions and framework hashes identify the builds.
+
+Raw local comparison evidence: Library/Caches/BraveBuildTransfer/gpu-diagnostics/brave-1.97.59-compare-1792402876081. Comparison scripts/results remain there. The new automatic non-Metal path has not yet been runtime-tested on the MacBook; new binary release publication remains pending.
