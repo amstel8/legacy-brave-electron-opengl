@@ -8,7 +8,7 @@ Independent compatibility build, targeting x86_64 and macOS 12.0. Electron commi
 
 Archive: electron-v44.9.0-macos12-darwin-x64.zip. SHA-256: 7e0be42f00e066d746bb7ab0958ecbe99fa94fb5df97e346b408cc8ae58837e2.
 
-Compilation and distribution ZIP completed successfully on the Intel Mac Pro; the versioned build log records its measured duration. The engine runs on macOS 12 in ELECTRON_RUN_AS_NODE mode and reports the pinned versions. Pritunl 1.4.4777.90 was previously compiled and packaged with the 44.9.0 engine. Initial Pritunl GUI startup was also verified on a non-Metal MacBookPro7,1 running macOS 12.7.6: its GPU child automatically receives --use-angle=gl without manually forcing the backend. Extended rendering/GPU stability and VPN connection testing remain pending. This is an experimental third-party port, without Developer ID signing or notarization.
+Compilation completed successfully in 9h44m15s (41,857 steps), followed by successful distribution ZIP packaging. Node-mode version checks and GUI/WebGL1 checks passed on Metal and automatic OpenGL; details are below. Pritunl 1.4.4777.90 was built with the previous 44.7.2 engine and was not rebuilt with 44.9.0. This is an independent third-party compatibility release, without Developer ID signing or notarization.
 
 ## Rendering behavior
 
@@ -20,7 +20,7 @@ ScreenCaptureKit audio loopback capture returns failure below macOS 13; ordinary
 
 ## Build
 
-Use Electron's upstream macOS/manual GN prerequisites, shared depot_tools and Node 24.22.0. The successful host used Xcode 14.2 tools plus a separate macOS SDK 15.5 copy. Keep Electron's own Chromium checkout separate from Brave's.
+Use Electron's upstream macOS/manual GN prerequisites, shared depot_tools and Node 24.21.0. The successful host used Xcode 14.2 tools plus a separate macOS SDK 15.5 copy. Keep Electron's own Chromium checkout separate from Brave's.
 
 1. Configure a gclient workspace named src/electron with https://github.com/electron/electron.git as an unmanaged solution; target_os = ["mac"]. Check out Electron tag v44.9.0, then run gclient sync --nohooks --revision src/electron@v44.9.0.
 2. Apply patches/electron-dependency-install.patch from src/electron before hooks. It adds --mode=skip-build to immutable Yarn install, avoiding compilation of test-only native fixture packages with the host Xcode libc++. It does not disable building Electron or its Node engine.
@@ -39,12 +39,6 @@ The configuration uses official Release mode, PGO phase 2 with Electron's profil
 - sdk-shims/ and scripts/prepare-sdk.py: compatibility declarations for the private SDK copy.
 
 Electron and Chromium modifications remain under their original upstream licenses. The build is not published, endorsed or supported by the Electron project.
-
-
-## 44.9.0 validation
-
-The exact distribution passed Node-mode version checks and separate GUI/WebGL1 pixel checks on macOS 12: Radeon RX 6800 XT with Metal and a non-Metal GeForce 320M MacBook with automatic OpenGL selection. Hardware compositing/rasterization were enabled. Existing Pritunl packaging evidence above describes the earlier 44.9.0 port; Pritunl was not rebuilt with 44.9.0 as part of this update. Extended application and stability tests remain pending.
-
 
 ## 44.9.0 validation
 

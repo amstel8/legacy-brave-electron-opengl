@@ -16,7 +16,7 @@ These are unofficial builds without Developer ID signing/notarization. is_offici
 
 ## Electron
 
-[**Electron 44.9.0 / Chromium 152, macOS 12 x64**](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v44.9.0-macos12-x64) is an experimental compatibility build with the same automatic OpenGL selection when no Metal device exists. Its independent patches, exact GN configuration, SDK declarations and build recipe are in [electron/](electron/). Node-mode startup, Metal GUI/WebGL1 and automatic OpenGL GUI/WebGL1 on a non-Metal MacBookPro7,1 have been verified for 44.9.0. Existing Pritunl packages use the earlier 44.7.2 engine. Extended rendering/GPU stability checks remain pending.
+[**Electron 44.9.0 / Chromium 152, macOS 12 x64**](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v44.9.0-macos12-x64) is a compatibility release with the same automatic OpenGL selection when no Metal device exists. Its independent patches, exact GN configuration, SDK declarations and build recipe are in [electron/](electron/). Node-mode startup, Metal GUI/WebGL1 and automatic OpenGL GUI/WebGL1 on a non-Metal MacBookPro7,1 have been verified for 44.9.0. Existing Pritunl packages use the earlier 44.7.2 engine. Extended rendering/GPU stability checks remain pending.
 
 ## Earlier Brave releases
 

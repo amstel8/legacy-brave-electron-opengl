@@ -6,6 +6,6 @@ Archive: `electron-v44.9.0-macos12-darwin-x64.zip`. SHA-256: `7e0be42f00e066d746
 
 Validated the actual macOS 12 runtime versions, Metal GUI/WebGL1 on Radeon RX 6800 XT, and automatic OpenGL GUI/WebGL1 on the non-Metal GeForce 320M MacBook. Hardware compositing and rasterization were enabled. Explicit GPU switches remain respected. OpenGL uses Ganesh and the existing GLES2/IOSurface compatibility path. It detects absence of a Metal device, not every later Metal driver crash.
 
-Experimental third-party compatibility port, without Developer ID signing/notarization. WebGL2 is unsupported on the tested 320M. ScreenCaptureKit system-audio capture below macOS 13 is unavailable. Wider application, media, conferencing and long-duration testing remain pending. No existing application or user profile was replaced by these standalone runtime checks.
+Independent third-party compatibility release, without Developer ID signing/notarization. WebGL2 is unsupported on the tested 320M. ScreenCaptureKit system-audio capture below macOS 13 is unavailable. Wider application, media, conferencing and long-duration testing remain pending. No existing application or user profile was replaced by these standalone runtime checks.
 
 Patch and build recipe: https://github.com/amstel8/legacy-brave-electron-opengl/tree/main/electron . The previous 44.7.2 release remains available.
