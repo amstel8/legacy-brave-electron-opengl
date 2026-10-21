@@ -1,6 +1,6 @@
 # Legacy Brave, Electron and OpenGL for macOS 12
 
-Independent Brave **1.97.59 / Chromium 155.0.8059.85** and Electron **44.7.2** builds for Intel Macs on macOS 12. Release assets contain binaries; this repository contains the compatibility patches, SDK declarations and build instructions. Full Chromium/Brave/Electron sources are fetched from their pinned upstream revisions.
+Independent Brave **1.97.59 / Chromium 155.0.8059.85** and Electron **44.9.0** builds for Intel Macs on macOS 12. Release assets contain binaries; this repository contains the compatibility patches, SDK declarations and build instructions. Full Chromium/Brave/Electron sources are fetched from their pinned upstream revisions.
 
 ## Current Brave release
 
@@ -16,7 +16,7 @@ These are unofficial builds without Developer ID signing/notarization. is_offici
 
 ## Electron
 
-[**Electron 44.7.2 / Chromium 152, macOS 12 x64**](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v44.7.2-macos12-x64) is an experimental compatibility build with the same automatic OpenGL selection when no Metal device exists. Its independent patches, exact GN configuration, SDK declarations and build recipe are in [electron/](electron/). Node-mode startup and initial Pritunl GUI startup on a non-Metal MacBookPro7,1 have been verified. Extended rendering/GPU stability and VPN checks remain pending.
+[**Electron 44.9.0 / Chromium 152, macOS 12 x64**](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v44.9.0-macos12-x64) is an experimental compatibility build with the same automatic OpenGL selection when no Metal device exists. Its independent patches, exact GN configuration, SDK declarations and build recipe are in [electron/](electron/). Node-mode startup, Metal GUI/WebGL1 and automatic OpenGL GUI/WebGL1 on a non-Metal MacBookPro7,1 have been verified for 44.9.0. Existing Pritunl packages use the earlier 44.7.2 engine. Extended rendering/GPU stability checks remain pending.
 
 ## Earlier Brave releases
 

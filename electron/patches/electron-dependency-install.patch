@@ -1,8 +1,8 @@
 diff --git a/DEPS b/DEPS
-index 042f4c2ba2..225d4664c5 100644
+index b1f99e77cb..4a2640fbd2 100644
 --- a/DEPS
 +++ b/DEPS
-@@ -163,7 +163,7 @@ hooks = [
+@@ -156,7 +156,7 @@ hooks = [
      'action': [
        'python3',
        '-c',

@@ -9,7 +9,7 @@
        "Chromium has updated the mac_deployment_target, please update this assert and flag this as a breaking change (docs/breaking-changes.md)")
  }
  
-@@ -702,6 +702,7 @@
+@@ -705,6 +705,7 @@
        "AVFoundation.framework",
        "Carbon.framework",
        "LocalAuthentication.framework",
@@ -28,11 +28,10 @@
  
  #include <utility>
  
-@@ -25,6 +27,21 @@
-   argv = uv_setup_args(argc, argv);
+@@ -61,6 +63,21 @@
    base::CommandLine::Init(argc, argv);
    electron::ElectronCommandLine::Init(argc, argv);
-+
+ 
 +  auto* command_line = base::CommandLine::ForCurrentProcess();
 +  if (!command_line->HasSwitch("type") &&
 +      !command_line->HasSwitch("use-angle") &&
@@ -47,6 +46,7 @@
 +      }
 +    }
 +  }
- 
++
    electron::ElectronMainDelegate delegate;
  
+   // Ensure that Bundle Id is set before ContentMain.
