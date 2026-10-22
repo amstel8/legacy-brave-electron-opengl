@@ -7,9 +7,9 @@
 -      mac_deployment_target == "13.0",
 +      (mac_deployment_target == "12.0" || mac_deployment_target == "13.0"),
        "Chromium has updated the mac_deployment_target, please update this assert and flag this as a breaking change (docs/breaking-changes.md)")
- }
  
-@@ -705,6 +705,7 @@
+   # shell/browser/feature_list_mac.mm enables this unexported content feature
+@@ -712,6 +712,7 @@
        "AVFoundation.framework",
        "Carbon.framework",
        "LocalAuthentication.framework",
@@ -19,16 +19,16 @@
        "Security.framework",
 --- a/shell/app/electron_library_main.mm
 +++ b/shell/app/electron_library_main.mm
-@@ -1,6 +1,8 @@
- // Copyright (c) 2013 GitHub, Inc.
- // Use of this source code is governed by the MIT license that can be
+@@ -3,6 +3,8 @@
  // found in the LICENSE file.
-+
-+#import <Metal/Metal.h>
  
+ #include <string_view>
++#import <Metal/Metal.h>
++
  #include <utility>
  
-@@ -61,6 +63,21 @@
+ #include "shell/app/electron_library_main.h"
+@@ -74,6 +76,21 @@
    base::CommandLine::Init(argc, argv);
    electron::ElectronCommandLine::Init(argc, argv);
  

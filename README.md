@@ -1,6 +1,6 @@
 # Legacy Brave, Electron and OpenGL for macOS 12
 
-Independent Brave **1.97.59 / Chromium 155.0.8059.85** and Electron **44.9.0** builds for Intel Macs on macOS 12. Release assets contain binaries; this repository contains the compatibility patches, SDK declarations and build instructions. Full Chromium/Brave/Electron sources are fetched from their pinned upstream revisions.
+Independent Brave **1.97.59 / Chromium 155.0.8059.85** and Electron **45.0.0** builds for Intel Macs on macOS 12. Release assets contain binaries; this repository contains the compatibility patches, SDK declarations and build instructions. Full Chromium/Brave/Electron sources are fetched from their pinned upstream revisions.
 
 ## Current Brave release
 
@@ -16,7 +16,7 @@ These are unofficial builds without Developer ID signing/notarization. is_offici
 
 ## Electron
 
-[**Electron 44.9.0 / Chromium 152, macOS 12 x64**](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v44.9.0-macos12-x64) is a compatibility release with the same automatic OpenGL selection when no Metal device exists. Its independent patches, exact GN configuration, SDK declarations and build recipe are in [electron/](electron/). Node-mode startup, Metal GUI/WebGL1 and automatic OpenGL GUI/WebGL1 on a non-Metal MacBookPro7,1 have been verified for 44.9.0. Existing Pritunl packages use the earlier 44.7.2 engine. Extended rendering/GPU stability checks remain pending.
+[**Electron 45.0.0 / Chromium 156, macOS 12 x64**](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v45.0.0-macos12-x64) retains Metal and automatic OpenGL selection on non-Metal Macs. The updated Chromium 156 patches restore the removed hardware-GL route and IOSurface capability propagation. Exact patches, build settings and instructions are in [electron/](electron/); validation coverage is in [release notes](electron/RELEASE.md). The previous 44.9.0 release remains available. Existing Pritunl packages use Electron 44.7.2.
 
 ## Earlier Brave releases
 

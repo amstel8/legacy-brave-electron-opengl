@@ -36,43 +36,20 @@
      }
 --- a/components/remote_cocoa/app_shim/native_widget_ns_window_bridge.mm
 +++ b/components/remote_cocoa/app_shim/native_widget_ns_window_bridge.mm
-@@ -100,9 +100,11 @@
+@@ -124,11 +124,13 @@
      return true;
    }
  
 +#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 260000
    if (@available(macOS 26, *)) {
-     return [view isKindOfClass:[NSGlassEffectView class]];
+     if ([view isKindOfClass:[NSGlassEffectView class]]) {
+       return true;
+     }
    }
 +#endif
  
-   return false;
- }
---- a/build/config/compiler/BUILD.gn
-+++ b/build/config/compiler/BUILD.gn
-@@ -130,6 +130,9 @@
-   # See: https://clang.llvm.org/docs/ThinLTO.html#incremental
-   # The cache can lead to non-determinism: https://crbug.com/1486045
-   thin_lto_enable_cache = true
-+
-+  # Limit linker memory on the 32 GB Intel build host.
-+  thin_lto_backend_jobs = 0
- 
-   # Initialize all local variables with a pattern. This flag will fill
-   # uninitialized floating-point types (and 32-bit pointers) with 0xFF and the
-@@ -835,7 +838,11 @@
-       # and let it use all cores.
-       # TODO(thakis): Check if '=0' (that is, number of cores, instead
-       # of "all" which means number of hardware threads) is faster.
--      ldflags += [ "-Wl,--thinlto-jobs=all" ]
-+      if (is_mac && thin_lto_backend_jobs > 0) {
-+        ldflags += [ "-Wl,--thinlto-jobs=$thin_lto_backend_jobs" ]
-+      } else {
-+        ldflags += [ "-Wl,--thinlto-jobs=all" ]
-+      }
- 
-       if (is_chromeos) {
-         # ARM was originally set lower than x86 to keep the size
+   if ([view.identifier
+           isEqualToString:remote_cocoa::kOpaqueFrameBackgroundViewIdentifier]) {
 --- a/media/audio/mac/audio_loopback_input_mac_impl.mm
 +++ b/media/audio/mac/audio_loopback_input_mac_impl.mm
 @@ -317,6 +317,12 @@
@@ -100,7 +77,7 @@
  }
 --- a/gpu/config/gpu_finch_features.cc
 +++ b/gpu/config/gpu_finch_features.cc
-@@ -616,6 +616,13 @@
+@@ -619,6 +619,13 @@
  }  // namespace
  
  bool IsSkiaGraphiteEnabled(const base::CommandLine* command_line) {
@@ -114,25 +91,155 @@
    // Force disabling graphite if --disable-skia-graphite flag is specified.
    if (command_line->HasSwitch(switches::kDisableSkiaGraphite)) {
      return false;
+--- a/ui/gl/gl_features.h
++++ b/ui/gl/gl_features.h
+@@ -44,6 +44,11 @@
+ GL_EXPORT bool UsePassthroughCommandDecoder();
+ GL_EXPORT bool IsANGLEValidationEnabled();
+ GL_EXPORT bool IsANGLEPassthroughShadersAllowed();
++
++// Returns true when the legacy ANGLE OpenGL (CGL) backend has been selected
++// with --use-angle=gl. That backend can only expose ES2 on legacy GPUs, so the
++// GL contexts have to be allowed to fall back to a lower ES version.
++GL_EXPORT bool IsLegacyOpenGLBackendSelected();
+ 
+ GL_EXPORT void GetANGLEFeaturesFromCommandLineAndFinch(
+     const base::CommandLine* command_line,
 --- a/ui/gl/gl_features.cc
 +++ b/ui/gl/gl_features.cc
-@@ -268,6 +268,13 @@
+@@ -246,6 +246,15 @@
+   return base::FeatureList::IsEnabled(kAllowANGLEPassthroughShaders);
  }
  
- bool ShouldFallbackToSWIfGLES3NotSupported() {
++bool IsLegacyOpenGLBackendSelected() {
 +#if BUILDFLAG(IS_MAC)
-+  // Legacy CGL may expose GLES2 over desktop OpenGL 3.3. Keep GPU rendering.
-+  if (base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
-+          switches::kUseANGLE) == gl::kANGLEImplementationOpenGLName) {
-+    return false;
++  return base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
++             switches::kUseANGLE) == gl::kANGLEImplementationOpenGLName;
++#else
++  return false;
++#endif
++}
++
+ void GetANGLEFeaturesFromCommandLineAndFinch(
+     const base::CommandLine* command_line,
+     std::vector<std::string>& enabled_angle_features,
+--- a/gpu/config/gpu_info_collector.cc
++++ b/gpu/config/gpu_info_collector.cc
+@@ -33,6 +33,7 @@
+ #include "ui/gl/buildflags.h"
+ #include "ui/gl/gl_bindings.h"
+ #include "ui/gl/gl_context.h"
++#include "ui/gl/gl_features.h"
+ #include "ui/gl/gl_implementation.h"
+ #include "ui/gl/gl_surface.h"
+ #include "ui/gl/gl_surface_egl.h"
+@@ -91,7 +92,10 @@
+ scoped_refptr<gl::GLContext> InitializeGLContext(gl::GLSurface* surface) {
+   TRACE_EVENT("gpu,startup", "gpu_info_collector::InitializeGLContext");
+   gl::GLContextAttribs attribs;
+-  attribs.allow_es_version_fallback = false;
++  // The legacy ANGLE/CGL backend can only expose ES2 on legacy GPUs, so the
++  // ES version fallback has to stay enabled to keep the GPU alive.
++  attribs.allow_es_version_fallback =
++      features::IsLegacyOpenGLBackendSelected();
+   scoped_refptr<gl::GLContext> context(
+       gl::init::CreateGLContext(nullptr, surface, attribs));
+   if (!context.get()) {
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -129,7 +129,11 @@
+   # Whether to enable thin lto incremental builds.
+   # See: https://clang.llvm.org/docs/ThinLTO.html#incremental
+   # The cache can lead to non-determinism: https://crbug.com/1486045
+-  thin_lto_enable_cache = true
++  thin_lto_enable_cache = true
++
++  # Limit the number of concurrent ThinLTO backend jobs on the 32 GB Intel
++  # build host so that the link step stays within the available memory.
++  thin_lto_backend_jobs = 0
+ 
+   # Initialize all local variables with a pattern. This flag will fill
+   # uninitialized floating-point types (and 32-bit pointers) with 0xFF and the
+@@ -845,7 +849,11 @@
+       # and let it use all cores.
+       # TODO(thakis): Check if '=0' (that is, number of cores, instead
+       # of "all" which means number of hardware threads) is faster.
+-      ldflags += [ "-Wl,--thinlto-jobs=all" ]
++      if (is_mac && thin_lto_backend_jobs > 0) {
++        ldflags += [ "-Wl,--thinlto-jobs=$thin_lto_backend_jobs" ]
++      } else {
++        ldflags += [ "-Wl,--thinlto-jobs=all" ]
++      }
+ 
+       if (is_chromeos) {
+         # ARM was originally set lower than x86 to keep the size
+--- a/gpu/command_buffer/common/shared_image_capabilities.h
++++ b/gpu/command_buffer/common/shared_image_capabilities.h
+@@ -46,6 +46,10 @@
+ #if BUILDFLAG(IS_WIN)
+   bool shared_image_swap_chain = false;
+ #endif
++
++#if BUILDFLAG(IS_MAC)
++  uint32_t texture_target_for_io_surfaces = 0;
++#endif
+ };
+ 
+ }  // namespace gpu
+--- a/gpu/ipc/common/shared_image_capabilities.mojom
++++ b/gpu/ipc/common/shared_image_capabilities.mojom
+@@ -24,4 +24,7 @@
+   bool shared_image_d3d;
+   [EnableIf=is_win]
+   bool shared_image_swap_chain;
++
++  [EnableIf=is_mac]
++  uint32 texture_target_for_io_surfaces;
+ };
+--- a/gpu/ipc/common/shared_image_capabilities_mojom_traits.h
++++ b/gpu/ipc/common/shared_image_capabilities_mojom_traits.h
+@@ -79,6 +79,13 @@
+     return input.shared_image_swap_chain;
+   }
+ #endif
++
++#if BUILDFLAG(IS_MAC)
++  static uint32_t texture_target_for_io_surfaces(
++      const gpu::SharedImageCapabilities& input) {
++    return input.texture_target_for_io_surfaces;
 +  }
 +#endif
- #if BUILDFLAG(IS_CHROMEOS)
-   static bool is_enabled =
-       !base::CommandLine::ForCurrentProcess()->HasSwitch(
+ };
+ 
+ }  // namespace mojo
+--- a/gpu/ipc/common/shared_image_capabilities_mojom_traits.cc
++++ b/gpu/ipc/common/shared_image_capabilities_mojom_traits.cc
+@@ -33,6 +33,10 @@
+   out->shared_image_swap_chain = data.shared_image_swap_chain();
+ #endif
+ 
++#if BUILDFLAG(IS_MAC)
++  out->texture_target_for_io_surfaces = data.texture_target_for_io_surfaces();
++#endif
++
+   return true;
+ }
+ 
+--- a/gpu/command_buffer/service/shared_image/shared_image_factory.h
++++ b/gpu/command_buffer/service/shared_image/shared_image_factory.h
+@@ -254,6 +254,9 @@
+ 
+   gfx::GpuExtraInfo gpu_extra_info_;
+   gpu::GpuPreferences gpu_preferences_;
++#if BUILDFLAG(IS_MAC)
++  uint32_t texture_target_for_io_surfaces_;
++#endif
+   gpu::GpuDriverBugWorkarounds workarounds_;
+ 
+ #if BUILDFLAG(IS_ANDROID)
 --- a/gpu/command_buffer/service/shared_image/shared_image_factory.cc
 +++ b/gpu/command_buffer/service/shared_image/shared_image_factory.cc
-@@ -16,6 +16,7 @@
+@@ -18,6 +18,7 @@
  #include "build/build_config.h"
  #include "build/chromecast_buildflags.h"
  #include "components/viz/common/resources/shared_image_format_utils.h"
@@ -140,15 +247,311 @@
  #include "gpu/command_buffer/common/shared_image_info.h"
  #include "gpu/command_buffer/common/shared_image_trace_utils.h"
  #include "gpu/command_buffer/common/shared_image_usage.h"
-@@ -173,7 +174,10 @@
+@@ -253,6 +254,12 @@
+       gr_context_type_(context_state_ ? context_state_->gr_context_type()
                                        : GrContextType::kNone),
        gpu_preferences_(gpu_preferences),
- #if BUILDFLAG(IS_MAC)
--      texture_target_for_io_surfaces_(GL_TEXTURE_2D),
++#if BUILDFLAG(IS_MAC)
 +      texture_target_for_io_surfaces_(
 +          gl::GetANGLEImplementation() == gl::ANGLEImplementation::kOpenGL
 +              ? GL_TEXTURE_RECTANGLE_ARB
 +              : GL_TEXTURE_2D),
- #endif
++#endif
        workarounds_(workarounds) {
+ 
    factory_ref_ = base::MakeRefCounted<SharedImageFactoryRef>(this);
+@@ -423,7 +430,11 @@
+         std::make_unique<IOSurfaceImageBackingFactory>(
+             gr_context_type_, context_state_->GetMaxTextureSize(),
+             feature_info.get(), context_state_->progress_reporter(),
++#if BUILDFLAG(IS_MAC)
++            texture_target_for_io_surfaces_
++#else
+             GL_TEXTURE_2D
++#endif
+         );
+     factories_.push_back(std::move(iosurface_backing_factory));
+   }
+@@ -972,6 +983,11 @@
+         !context_state_->is_drdc_enabled();
+   }
+ 
++#if BUILDFLAG(IS_MAC)
++  shared_image_caps.texture_target_for_io_surfaces =
++      texture_target_for_io_surfaces_;
++#endif
++
+ #if BUILDFLAG(IS_WIN)
+   shared_image_caps.shared_image_d3d = IsD3DSharedImageSupported();
+   shared_image_caps.shared_image_swap_chain =
+--- a/gpu/command_buffer/client/client_shared_image.cc
++++ b/gpu/command_buffer/client/client_shared_image.cc
+@@ -63,7 +63,7 @@
+ 
+ namespace {
+ 
+-#if BUILDFLAG(IS_OZONE) || BUILDFLAG(IS_ANDROID)
++#if BUILDFLAG(IS_MAC) || BUILDFLAG(IS_OZONE) || BUILDFLAG(IS_ANDROID)
+ bool GMBIsNative(gfx::GpuMemoryBufferType gmb_type) {
+   return gmb_type != gfx::EMPTY_BUFFER && gmb_type != gfx::SHARED_MEMORY_BUFFER;
+ }
+@@ -88,13 +88,27 @@
+ //   supported in Chromium only on Ozone).
+ uint32_t ComputeTextureTargetForSharedImage(
+     SharedImageMetadata metadata,
+-    gfx::GpuMemoryBufferType client_gmb_type) {
++    gfx::GpuMemoryBufferType client_gmb_type,
++    scoped_refptr<SharedImageInterface> sii) {
++  CHECK(sii);
+   CHECK_GE(metadata.array_layers, 1u);
+ #if !BUILDFLAG(IS_ANDROID)
+   CHECK_EQ(metadata.array_layers, 1u);
+ #endif
+-#if !BUILDFLAG(IS_OZONE) && !BUILDFLAG(IS_ANDROID)
++#if !BUILDFLAG(IS_MAC) && !BUILDFLAG(IS_OZONE) && !BUILDFLAG(IS_ANDROID)
+   return GL_TEXTURE_2D;
++#elif BUILDFLAG(IS_MAC)
++  // CGL samples IOSurfaces with rectangle textures, while Metal uses
++  // ordinary 2D textures.
++  constexpr gpu::SharedImageUsageSet kUsagesRequiringNativeBuffer =
++      SHARED_IMAGE_USAGE_SCANOUT | SHARED_IMAGE_USAGE_WEBGPU_READ |
++      SHARED_IMAGE_USAGE_WEBGPU_WRITE;
++  const bool uses_native_buffer =
++      GMBIsNative(client_gmb_type) ||
++      metadata.usage.HasAny(kUsagesRequiringNativeBuffer);
++  return uses_native_buffer
++             ? sii->GetCapabilities().texture_target_for_io_surfaces
++             : GL_TEXTURE_2D;
+ #else  // Ozone or Android
+ #if BUILDFLAG(IS_ANDROID)
+   if (metadata.array_layers > 1) {
+@@ -375,7 +389,8 @@
+                : nullptr) {
+   CHECK(!mailbox.IsZero());
+   CHECK(sii_holder_);
+-  texture_target_ = ComputeTextureTargetForSharedImage(metadata_, gmb_type);
++  texture_target_ = ComputeTextureTargetForSharedImage(
++      metadata_, gmb_type, GetSharedImageInterface());
+   StoreSyncTokenInternal(sync_token);
+ }
+ 
+@@ -483,7 +498,7 @@
+   CHECK(sii_holder_);
+   CHECK(mappable_buffer_);
+   texture_target_ = ComputeTextureTargetForSharedImage(
+-      metadata_, mappable_buffer_->GetType());
++      metadata_, mappable_buffer_->GetType(), GetSharedImageInterface());
+   StoreSyncTokenInternal(sync_token);
+ }
+ 
+--- a/gpu/command_buffer/client/test_shared_image_interface.h
++++ b/gpu/command_buffer/client/test_shared_image_interface.h
+@@ -199,10 +199,18 @@
+     emulate_client_provided_native_buffer_ = true;
+   }
+ 
++#if BUILDFLAG(IS_MAC)
++  void set_texture_target_for_io_surfaces(uint32_t target) {
++    shared_image_capabilities_.texture_target_for_io_surfaces = target;
++  }
++#endif
++
+  protected:
+   ~TestSharedImageInterface() override;
+ 
+  private:
++  void InitializeSharedImageCapabilities();
++
+   mutable base::Lock lock_;
+ 
+   raw_ptr<TestSharedImageInterfaceClient> test_client_ = nullptr;
+--- a/gpu/command_buffer/client/test_shared_image_interface.cc
++++ b/gpu/command_buffer/client/test_shared_image_interface.cc
+@@ -127,7 +127,9 @@
+ };
+ #endif
+ 
+-TestSharedImageInterface::TestSharedImageInterface() = default;
++TestSharedImageInterface::TestSharedImageInterface() {
++  InitializeSharedImageCapabilities();
++}
+ TestSharedImageInterface::~TestSharedImageInterface() = default;
+ 
+ // static
+@@ -485,6 +487,21 @@
+ void TestSharedImageInterface::SetCapabilities(
+     const SharedImageCapabilities& caps) {
+   shared_image_capabilities_ = caps;
++  InitializeSharedImageCapabilities();
++}
++
++void TestSharedImageInterface::InitializeSharedImageCapabilities() {
++#if BUILDFLAG(IS_MAC)
++  // Initialize `texture_target_for_io_surfaces` to a value that is valid for
++  // ClientSharedImage to use, as unittests broadly create and use
++  // SharedImageCapabilities instances without initializing this field. The
++  // specific value is chosen to match the historical default value that was
++  // used when this state was accessed via a global variable.
++  if (!shared_image_capabilities_.texture_target_for_io_surfaces) {
++    shared_image_capabilities_.texture_target_for_io_surfaces =
++        GL_TEXTURE_RECTANGLE_ARB;
++  }
++#endif
+ }
+ 
+ }  // namespace gpu
+--- a/gpu/command_buffer/client/client_shared_image_unittest.cc
++++ b/gpu/command_buffer/client/client_shared_image_unittest.cc
+@@ -373,11 +373,19 @@
+ }
+ 
+ // When the client provides a native buffer with a single-plane format,
+-// GL_TEXTURE_2D
++// GL_TEXTURE_2D should be used as the texture target on all platforms other
++// than Mac, where the target for IO surfaces should be used.
+ TEST(ClientSharedImageTest,
+      GetTextureTarget_SinglePlaneFormats_ClientNativeBuffer) {
+   auto sii = base::MakeRefCounted<TestSharedImageInterface>();
+   sii->emulate_client_provided_native_buffer();
++
++#if BUILDFLAG(IS_MAC)
++  // Explicitly set the texture target for IO surfaces to a target other than
++  // GL_TEXTURE_2D to ensure that the test is meaningful on Mac.
++  const uint32_t kTargetForIOSurfaces = GL_TEXTURE_RECTANGLE_ARB;
++  sii->set_texture_target_for_io_surfaces(kTargetForIOSurfaces);
++#endif
+ 
+   const SharedImageUsageSet kUsage =
+       SHARED_IMAGE_USAGE_RASTER_WRITE | SHARED_IMAGE_USAGE_DISPLAY_READ;
+@@ -386,15 +394,96 @@
+     auto client_si = sii->CreateSharedImage(
+         CreateSharedImageInfo(format, kUsage), kNullSurfaceHandle);
+ 
+-    EXPECT_EQ(client_si->GetTextureTarget(),
+-              static_cast<uint32_t>(GL_TEXTURE_2D));
++#if BUILDFLAG(IS_MAC)
++    const uint32_t expected_texture_target = kTargetForIOSurfaces;
++#else
++    const uint32_t expected_texture_target = GL_TEXTURE_2D;
++#endif
++    EXPECT_EQ(client_si->GetTextureTarget(), expected_texture_target);
++  }
++}
++
++// When the client asks for SCANOUT usage, GL_TEXTURE_2D should be used as the
++// texture target on all platforms other than Mac, where the target for IO
++// surfaces should be used.
++TEST(ClientSharedImageTest, GetTextureTarget_ScanoutUsage) {
++  auto sii = base::MakeRefCounted<TestSharedImageInterface>();
++
++#if BUILDFLAG(IS_MAC)
++  // Explicitly set the texture target for IO surfaces to a target other than
++  // GL_TEXTURE_2D to ensure that the test is meaningful on Mac.
++  const uint32_t kTargetForIOSurfaces = GL_TEXTURE_RECTANGLE_ARB;
++  sii->set_texture_target_for_io_surfaces(kTargetForIOSurfaces);
++#endif
++
++  const SharedImageUsageSet kUsage = SHARED_IMAGE_USAGE_SCANOUT;
++
++  // Test all single-plane formats as well as multiplane formats for which
++  // hardware GMBs are supported.
++  std::vector<viz::SharedImageFormat> formats_to_test;
++  for (auto format : viz::SinglePlaneFormat::kAll) {
++    formats_to_test.push_back(format);
++  }
++  for (auto format : kMultiPlaneFormatsWithHardwareGMBs) {
++    formats_to_test.push_back(format);
++  }
++
++  for (auto format : formats_to_test) {
++    auto client_si = sii->CreateSharedImage(
++        CreateSharedImageInfo(format, kUsage), kNullSurfaceHandle);
++
++#if BUILDFLAG(IS_MAC)
++    const uint32_t expected_texture_target = kTargetForIOSurfaces;
++#else
++    const uint32_t expected_texture_target = GL_TEXTURE_2D;
++#endif
++    EXPECT_EQ(client_si->GetTextureTarget(), expected_texture_target);
++  }
++}
++
++// When the client asks for WEBGPU usage, GL_TEXTURE_2D should be used as the
++// texture target on all platforms other than Mac, where the target for IO
++// surfaces should be used.
++TEST(ClientSharedImageTest, GetTextureTarget_WebGPUUsage) {
++  auto sii = base::MakeRefCounted<TestSharedImageInterface>();
++
++#if BUILDFLAG(IS_MAC)
++  // Explicitly set the texture target for IO surfaces to a target other than
++  // GL_TEXTURE_2D to ensure that the test is meaningful on Mac.
++  const uint32_t kTargetForIOSurfaces = GL_TEXTURE_RECTANGLE_ARB;
++  sii->set_texture_target_for_io_surfaces(kTargetForIOSurfaces);
++#endif
++
++  const SharedImageUsageSet kUsage = SHARED_IMAGE_USAGE_WEBGPU_READ;
++
++  // Test all single-plane formats as well as multiplane formats for which
++  // hardware GMBs are supported.
++  std::vector<viz::SharedImageFormat> formats_to_test;
++  for (auto format : viz::SinglePlaneFormat::kAll) {
++    formats_to_test.push_back(format);
++  }
++  for (auto format : kMultiPlaneFormatsWithHardwareGMBs) {
++    formats_to_test.push_back(format);
++  }
++
++  for (auto format : formats_to_test) {
++    auto client_si = sii->CreateSharedImage(
++        CreateSharedImageInfo(format, kUsage), kNullSurfaceHandle);
++
++#if BUILDFLAG(IS_MAC)
++    const uint32_t expected_texture_target = kTargetForIOSurfaces;
++#else
++    const uint32_t expected_texture_target = GL_TEXTURE_2D;
++#endif
++    EXPECT_EQ(client_si->GetTextureTarget(), expected_texture_target);
+   }
+ }
+ 
+ // On all platforms, the default target should be used for multi-planar
+ // formats if external sampling is not set and scanout/WebGPU usage are not
+ // specified.
+-TEST(ClientSharedImageTest, GetTextureTarget_MultiplanarFormats) {
++TEST(ClientSharedImageTest,
++     GetTextureTarget_MultiplanarFormats_NoScanoutOrWebGPUUsage) {
+   auto sii = base::MakeRefCounted<TestSharedImageInterface>();
+   const SharedImageUsageSet kUsage =
+       SHARED_IMAGE_USAGE_RASTER_WRITE | SHARED_IMAGE_USAGE_DISPLAY_READ;
+--- a/ui/accelerated_widget_mac/ca_renderer_layer_tree.mm
++++ b/ui/accelerated_widget_mac/ca_renderer_layer_tree.mm
+@@ -1279,6 +1279,7 @@
+       break;
+   }
+ 
++#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 260000
+   if (UseCALayerContentsHeadroom() && update_contents) {
+     if (@available(macOS 26, iOS 26, *)) {
+       float max_hdr_headroom = cc::ToneMapUtil::GetMaxHdrHeadroom(
+@@ -1296,6 +1297,7 @@
+       }
+     }
+   }
++#endif
+ 
+   if (update_contents_rect) {
+     if (type_ != CALayerType::kVideo)
+--- a/content/browser/gpu/gpu_data_manager_impl_private.cc
++++ b/content/browser/gpu/gpu_data_manager_impl_private.cc
+@@ -438,7 +438,10 @@
+ GpuDataManagerImplPrivate::GpuDataManagerImplPrivate(GpuDataManagerImpl* owner)
+     : owner_(owner),
+ #if BUILDFLAG(IS_MAC)
+-      supports_gpu_mode_hardware_gl_(false),
++      // Retain the upstream Metal policy unless legacy ANGLE GL was selected.
++      supports_gpu_mode_hardware_gl_(
++          base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
++              switches::kUseANGLE) == gl::kANGLEImplementationOpenGLName),
+ #elif BUILDFLAG(IS_ANDROID)
+       supports_gpu_mode_hardware_gl_(
+           !base::android::device_info::is_desktop() ||
