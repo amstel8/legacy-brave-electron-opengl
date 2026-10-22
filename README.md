@@ -16,7 +16,7 @@ These are unofficial builds without Developer ID signing/notarization. is_offici
 
 ## Electron
 
-[**Electron 45.0.0 / Chromium 156, macOS 12 x64**](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v45.0.0-macos12-x64) retains Metal and automatic OpenGL selection on non-Metal Macs. The updated Chromium 156 patches restore the removed hardware-GL route and IOSurface capability propagation. Validated on RX 6800 XT with Metal and explicit OpenGL, and on GeForce 320M with automatic OpenGL 3.3/GLES2, accelerated compositing/rasterization and WebGL1. Exact patches, build settings and instructions are in [electron/](electron/); validation coverage is in [release notes](electron/RELEASE.md). The previous 44.9.0 release remains available. Existing Pritunl packages use Electron 44.7.2.
+[**Electron 45.0.0 / Chromium 156, macOS 12 x64**](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v45.0.0-macos12-x64) retains Metal and automatic OpenGL selection on non-Metal Macs. The updated Chromium 156 patches restore the removed hardware-GL route and IOSurface capability propagation. Validated on RX 6800 XT with Metal and explicit OpenGL, and on GeForce 320M with automatic OpenGL 3.3/GLES2, accelerated compositing/rasterization and WebGL1. Exact patches, build settings and instructions are in [electron/](electron/); validation coverage is in [release notes](electron/RELEASE.md). The previous 44.9.0 release remains available.
 
 ## Earlier Brave releases
 

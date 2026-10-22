@@ -52,7 +52,7 @@ The GN configuration is Official Release, PGO phase 2 with Electron's own hash-p
 - `configs/macos12-x64-release.gn`: exact build arguments.
 - `sdk-shims/` and `scripts/prepare-sdk.py`: private SDK preparation.
 
-See [45.0.0 patch review](../docs/ELECTRON-45.0.0-PATCH-REVIEW.md). The [previous 44.9.0 release](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v44.9.0-macos12-x64) and its [archived notes](../docs/ELECTRON-44.9.0.md) remain available. Existing Pritunl packages still use Electron 44.7.2; they were not rebuilt for this release.
+See [45.0.0 patch review](../docs/ELECTRON-45.0.0-PATCH-REVIEW.md). The [previous 44.9.0 release](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v44.9.0-macos12-x64) and its [archived notes](../docs/ELECTRON-44.9.0.md) remain available.
 
 ## Validation
 

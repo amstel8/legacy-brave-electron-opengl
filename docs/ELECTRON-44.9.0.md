@@ -10,7 +10,7 @@ Independent compatibility build, targeting x86_64 and macOS 12.0. Electron commi
 
 Archive: electron-v44.9.0-macos12-darwin-x64.zip. SHA-256: 7e0be42f00e066d746bb7ab0958ecbe99fa94fb5df97e346b408cc8ae58837e2.
 
-Compilation completed successfully in 9h44m15s (41,857 steps), followed by successful distribution ZIP packaging. Node-mode version checks and GUI/WebGL1 checks passed on Metal and automatic OpenGL; details are below. Pritunl 1.4.4777.90 was built with the previous 44.7.2 engine and was not rebuilt with 44.9.0. This is an independent third-party compatibility release, without Developer ID signing or notarization.
+Compilation completed successfully in 9h44m15s (41,857 steps), followed by successful distribution ZIP packaging. Node-mode version checks and GUI/WebGL1 checks passed on Metal and automatic OpenGL; details are below. This is an independent third-party compatibility release, without Developer ID signing or notarization.
 
 ## Rendering behavior
 
@@ -44,4 +44,4 @@ Electron and Chromium modifications remain under their original upstream license
 
 ## 44.9.0 validation
 
-The exact distribution passed Node-mode version checks and separate GUI/WebGL1 pixel checks on macOS 12: Radeon RX 6800 XT with Metal and a non-Metal GeForce 320M MacBook with automatic OpenGL selection. Hardware compositing/rasterization were enabled. Existing Pritunl packaging evidence above describes the earlier 44.7.2 port; Pritunl was not rebuilt with 44.9.0 as part of this update. Extended application and stability tests remain pending.
+The exact distribution passed Node-mode version checks and separate GUI/WebGL1 pixel checks on macOS 12: Radeon RX 6800 XT with Metal and a non-Metal GeForce 320M MacBook with automatic OpenGL selection. Hardware compositing/rasterization were enabled. Extended application and stability tests remain pending.

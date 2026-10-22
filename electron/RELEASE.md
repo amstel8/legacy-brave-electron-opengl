@@ -34,6 +34,6 @@ All three runs read back `[51,102,204,255]` with GL error 0; no child-process ex
 
 ## Compatibility notes
 
-ScreenCaptureKit system-audio loopback is unavailable below macOS 13. Ordinary playback and microphone input are separate. The automatic GL decision detects absence of a Metal device; it does not recover from arbitrary later Metal driver failures. No installed apps or user profiles were replaced during these standalone checks. Existing Pritunl packages continue using Electron 44.7.2.
+ScreenCaptureKit system-audio loopback is unavailable below macOS 13. Ordinary playback and microphone input are separate. The automatic GL decision detects absence of a Metal device; it does not recover from arbitrary later Metal driver failures. No installed apps or user profiles were replaced during these standalone checks.
 
 [Source patches and build instructions](https://github.com/amstel8/legacy-brave-electron-opengl/tree/main/electron). Previous releases remain available; Brave remains the repository's Latest release.

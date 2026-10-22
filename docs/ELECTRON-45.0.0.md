@@ -26,7 +26,7 @@ The first compile/package sequence finished on 2026-10-22 at 21:19 MSK. The fina
 
 ## Final artifact
 
-See [release notes](../electron/RELEASE.md) for the final archive checksum and exact validation coverage. The 45.0.0 runtime is distributed separately; existing Brave, Pritunl and user profiles are not replaced by this publication.
+See [release notes](../electron/RELEASE.md) for the final archive checksum and exact validation coverage.
 
 ## GeForce 320M follow-up — 2026-10-23
 
