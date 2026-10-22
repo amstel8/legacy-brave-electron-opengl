@@ -27,3 +27,7 @@ The first compile/package sequence finished on 2026-10-22 at 21:19 MSK. The fina
 ## Final artifact
 
 See [release notes](../electron/RELEASE.md) for the final archive checksum and exact validation coverage. The 45.0.0 runtime is distributed separately; existing Brave, Pritunl and user profiles are not replaced by this publication.
+
+## GeForce 320M follow-up — 2026-10-23
+
+The exact published ZIP (SHA-256 2807aaa78ef959402e62cb5cc348d37809d0a77470c2b1883a70ccd6ae0fd1ed) was checked on the non-Metal OCLP MacBookPro7,1 with macOS 12.7.6. Launched through the GUI session with a separate profile and no graphics switches. It automatically chose ANGLE OpenGL 3.3, exposing GLES2, with GaneshGL. Hardware compositing/rasterization enabled. WebGL1 pixel [51,102,204,255], error 0; a distinct WebGL2 canvas returned null as expected. No child-process exit events during the short check. This resolves the legacy-hardware validation item left pending in the initial publication. No installed app or existing profile was changed.

@@ -35,3 +35,7 @@ The first distribution passed Metal/WebGL1 checks but failed forced GL on Radeon
 ## Final result
 
 The targeted GPU-mode rebuild completed in 3m55.78s (9 executed steps), then repackaged in 24.84s. The final ZIP passed default Metal/Graphite and explicit OpenGL/Ganesh GUI/WebGL1 checks on Radeon RX 6800 XT. Hardware compositing/rasterization were enabled and the expected pixel was returned with GL error 0 in both short runs. Non-Metal GeForce 320M testing remains pending because the MacBook was unavailable. See electron/validation/45.0.0.json for the final archive hash and exact coverage.
+
+## GeForce 320M follow-up — 2026-10-23
+
+The exact published ZIP (SHA-256 2807aaa78ef959402e62cb5cc348d37809d0a77470c2b1883a70ccd6ae0fd1ed) was checked on the non-Metal OCLP MacBookPro7,1 with macOS 12.7.6. Launched through the GUI session with a separate profile and no graphics switches. It automatically chose ANGLE OpenGL 3.3, exposing GLES2, with GaneshGL. Hardware compositing/rasterization enabled. WebGL1 pixel [51,102,204,255], error 0; a distinct WebGL2 canvas returned null as expected. No child-process exit events during the short check. This resolves the legacy-hardware validation item left pending in the initial publication. No installed app or existing profile was changed.

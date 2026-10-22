@@ -54,6 +54,10 @@ The GN configuration is Official Release, PGO phase 2 with Electron's own hash-p
 
 See [45.0.0 patch review](../docs/ELECTRON-45.0.0-PATCH-REVIEW.md). The [previous 44.9.0 release](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v44.9.0-macos12-x64) and its [archived notes](../docs/ELECTRON-44.9.0.md) remain available. Existing Pritunl packages still use Electron 44.7.2; they were not rebuilt for this release.
 
+## Validation
+
+The exact release ZIP passed macOS 12.7.6 GUI/WebGL1 checks on Radeon RX 6800 XT with Metal and explicit OpenGL 4.1, and on a non-Metal GeForce 320M with **automatic OpenGL 3.3 / GLES2**. Hardware compositing/rasterization were enabled. The 320M correctly rejected WebGL2. No child-process exit events were recorded during these short checks; extended stability remains untested. [Evidence](validation/45.0.0.json).
+
 ## Limits
 
 Independent third-party release, without Developer ID signing or notarization. Upstream licenses apply. ScreenCaptureKit system-audio loopback is unavailable below macOS 13; ordinary playback and microphone input are separate. Runtime validation coverage and outstanding checks are listed in the release notes.

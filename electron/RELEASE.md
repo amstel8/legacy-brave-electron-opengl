@@ -27,9 +27,11 @@ On macOS 12.7.6 with Radeon RX 6800 XT:
 | Default | ANGLE Metal / GraphiteDawnMetal | Hardware compositing/rasterization enabled; WebGL1 pixel check passed |
 | Explicit `--use-angle=gl` | ANGLE OpenGL 4.1 / GaneshGL | Hardware compositing/rasterization enabled; WebGL1 pixel check passed |
 
+On an OCLP MacBookPro7,1 with GeForce 320M and macOS 12.7.6, a separate profile with no graphics switches automatically selected ANGLE OpenGL **3.3** / GaneshGL and exposed OpenGL ES **2.0**. Hardware compositing/rasterization were enabled; WebGL1 returned `[51,102,204,255]`, GL error 0. A separate WebGL2 canvas correctly returned no context. No child-process exit events were recorded during the short check.
+
 Both runs read back `[51,102,204,255]` with GL error 0; no child-process exit events were recorded during the short checks. Node-mode startup reported Electron 45.0.0, Chromium 156.0.8078.48 and Node 24.22.0. [Machine-readable results](https://github.com/amstel8/legacy-brave-electron-opengl/blob/main/electron/validation/45.0.0.json).
 
-The non-Metal GeForce 320M MacBook was unavailable during publication, so automatic selection, GLES2-only operation and WebGL2 rejection have **not yet been revalidated on that hardware for 45.0.0**. Previous 44.9.0 validation is not presented as a 45.0.0 result. OpenGL support does not imply WebGL2/WebGPU capability on old hardware. Extended media, conferencing, performance and stability checks remain pending.
+The non-Metal MacBook check was completed on 2026-10-23 after publication, using the exact ZIP and checksum above. OpenGL support does not imply WebGL2/WebGPU capability on old hardware. Extended media, conferencing, performance and stability checks remain pending.
 
 ## Compatibility notes
 
