@@ -1,6 +1,6 @@
 # macOS 12 build recipe and patch inventory
 
-For the current v1.97.59 release with automatic Metal/OpenGL selection, see [UNIFIED-1.97.59.md](UNIFIED-1.97.59.md) and [release notes](RELEASE-1.97.59.md). The older pinned versions and manual OpenGL steps below describe the original v1.97.56 builds.
+For the current v1.98.60 / Chromium 156 release, use [the version-specific recipe](../recipes/brave-1.98.60/README.md) and [build details](UNIFIED-1.98.60.md). The older v1.97.59 release with automatic Metal/OpenGL selection is documented in [UNIFIED-1.97.59.md](UNIFIED-1.97.59.md) and [release notes](RELEASE-1.97.59.md). The older pinned versions and manual OpenGL steps below describe the original v1.97.56 builds.
 
 ## Pinned source and tools
 

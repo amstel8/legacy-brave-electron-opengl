@@ -1,0 +1,15 @@
+diff --git a/build/commands/lib/syncUtils.js b/build/commands/lib/syncUtils.js
+index a2c5eeb84..b17dd88a0 100644
+--- a/build/commands/lib/syncUtils.js
++++ b/build/commands/lib/syncUtils.js
+@@ -333,7 +333,9 @@ function syncChromium(program) {
+ 
+   if (!tryLeanCheckout) {
+     args.push('--revision')
+-    args.push('src@' + requiredChromiumRef)
++    // Use the already fetched exact tag revision rather than fetching tag history.
++    const resolvedRef = util.runGit(config.srcDir, ['rev-parse', requiredChromiumRef], true)
++    args.push('src@' + (resolvedRef || requiredChromiumRef))
+   }
+ 
+   util.runGclient(args)

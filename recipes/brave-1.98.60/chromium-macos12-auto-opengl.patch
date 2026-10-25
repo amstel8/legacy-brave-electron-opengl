@@ -1,0 +1,74 @@
+diff --git a/chrome/app/chrome_main_mac.h b/chrome/app/chrome_main_mac.h
+--- a/chrome/app/chrome_main_mac.h
++++ b/chrome/app/chrome_main_mac.h
+@@ -12,6 +12,9 @@
+ // (helper) process.
+ void SetUpBundleOverrides();
+ 
++// Select ANGLE OpenGL before GPU initialization when no Metal device exists.
++void MaybeSelectOpenGLOnMac();
++
+ // Checks if the system or specific third-party applications launched a
+ // helper app directly in such a way that they cannot function.
+ bool IsHelperAppLaunchedBySystemOrThirdPartyApplication();
+diff --git a/chrome/app/chrome_main_mac.mm b/chrome/app/chrome_main_mac.mm
+--- a/chrome/app/chrome_main_mac.mm
++++ b/chrome/app/chrome_main_mac.mm
+@@ -5,6 +5,7 @@
+ #include "chrome/app/chrome_main_mac.h"
+ 
+ #import <Cocoa/Cocoa.h>
++#import <Metal/Metal.h>
+ 
+ #include <string>
+ 
+@@ -102,6 +103,24 @@
+ 
+ }  // namespace
+ 
++void MaybeSelectOpenGLOnMac() {
++  auto* command_line = base::CommandLine::ForCurrentProcess();
++  if (command_line->HasSwitch(switches::kProcessType) ||
++      command_line->HasSwitch("use-angle") ||
++      command_line->HasSwitch("use-gl") ||
++      command_line->HasSwitch("disable-gpu")) {
++    return;
++  }
++
++  @autoreleasepool {
++    id<MTLDevice> device = MTLCreateSystemDefaultDevice();
++    if (!device) {
++      // Keep GPU compositing through ANGLE/CGL and the Ganesh path.
++      command_line->AppendSwitchASCII("use-angle", "gl");
++    }
++  }
++}
++
+ void SetUpBundleOverrides() {
+   @autoreleasepool {
+     base::apple::SetOverrideFrameworkBundlePath(
+diff --git a/chrome/app/chrome_main.cc b/chrome/app/chrome_main.cc
+--- a/chrome/app/chrome_main.cc
++++ b/chrome/app/chrome_main.cc
+@@ -180,6 +180,7 @@
+ 
+ #if BUILDFLAG(IS_MAC)
+   chrome::InitializeExitSixtyNineDetector();
++  MaybeSelectOpenGLOnMac();
+   SetUpBundleOverrides();
+ #endif
+ 
+diff --git a/chrome/BUILD.gn b/chrome/BUILD.gn
+--- a/chrome/BUILD.gn
++++ b/chrome/BUILD.gn
+@@ -1359,8 +1359,9 @@
+       deps += [ "//chrome/browser/chrome_for_testing:browser" ]
+     }
+ 
++    frameworks = [ "Metal.framework" ]
+     if (is_component_build) {
+-      frameworks = [ "Carbon.framework" ]
++      frameworks += [ "Carbon.framework" ]
+     }
+ 
+     ldflags = [ "-ObjC" ]
