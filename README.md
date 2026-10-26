@@ -14,6 +14,10 @@ The bundle version is **156.1.98.0**; the source tag is **v1.98.60** and Chromiu
 
 These are unofficial builds without Developer ID signing/notarization. is_official_build=true is an optimization configuration, not endorsement by Brave/Electron. Proprietary service credentials were unavailable and placeholders were used; associated services may not work.
 
+## macOS 12 fullscreen input fix
+
+A post-release [fullscreen input patch](docs/FULLSCREEN-INPUT-MACOS12.md) fixes a native toolbar layer intercepting the top of web pages on Monterey. It passed 40/40 native clicks and 40/40 pre-click hover checks and was installed and checked on the non-Metal MacBook, including Avito's business menu. The patch, regression fixture and measured results are included in the source recipe; the original release archive linked above is unchanged.
+
 ## Electron
 
 [**Electron 45.0.0 / Chromium 156, macOS 12 x64**](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v45.0.0-macos12-x64) retains Metal and automatic OpenGL selection on non-Metal Macs. The updated Chromium 156 patches restore the removed hardware-GL route and IOSurface capability propagation. Validated on RX 6800 XT with Metal and explicit OpenGL, and on GeForce 320M with automatic OpenGL 3.3/GLES2, accelerated compositing/rasterization and WebGL1. Exact patches, build settings and instructions are in [electron/](electron/); validation coverage is in [release notes](electron/RELEASE.md). The previous 44.9.0 release remains available.

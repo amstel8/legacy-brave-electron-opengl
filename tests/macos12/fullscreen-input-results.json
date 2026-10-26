@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-26",
+  "braveSourceTag": "v1.98.60",
+  "chromium": "156.0.8078.48",
+  "bundleVersion": "156.1.98.0",
+  "host": "MacBookPro7,1 / GeForce 320M / OCLP macOS 12.7.6",
+  "profile": "separate diagnostic profile",
+  "input": "native CoreGraphics events; pointermove checked before click",
+  "diagnosticLibraryLoaded": false,
+  "baselineFrameworkSha256": "696e583e6654830c40b46b8180c4916856ef9d0b991f40763da252915a026cff",
+  "fixedFrameworkSha256": "417389265f27abdcadb264efb399c2fc0f878c7bb775cd2408703b5fe42636b0",
+  "patchSha256": "e1989337bdde0db045acd055095b1c8faf1e2b024b6aee41468819a0e9ad9e54",
+  "results": [
+    {
+      "state": "window",
+      "attempts": 8,
+      "baselineCorrectClicks": 8,
+      "fixedCorrectTrustedClicks": 8,
+      "fixedTrustedHoversBeforeClick": 8,
+      "maxClickCenterDeviationCssPixels": 0.828125
+    },
+    {
+      "state": "fullscreen-default",
+      "attempts": 8,
+      "baselineCorrectClicks": 5,
+      "fixedCorrectTrustedClicks": 8,
+      "fixedTrustedHoversBeforeClick": 8,
+      "maxClickCenterDeviationCssPixels": 0
+    },
+    {
+      "state": "fullscreen-toolbar-toggle",
+      "attempts": 8,
+      "baselineCorrectClicks": 0,
+      "fixedCorrectTrustedClicks": 8,
+      "fixedTrustedHoversBeforeClick": 8,
+      "maxClickCenterDeviationCssPixels": 1
+    },
+    {
+      "state": "fullscreen-toolbar-restored",
+      "attempts": 8,
+      "baselineCorrectClicks": 5,
+      "fixedCorrectTrustedClicks": 8,
+      "fixedTrustedHoversBeforeClick": 8,
+      "maxClickCenterDeviationCssPixels": 0
+    },
+    {
+      "state": "window-after-fullscreen",
+      "attempts": 8,
+      "baselineCorrectClicks": 8,
+      "fixedCorrectTrustedClicks": 8,
+      "fixedTrustedHoversBeforeClick": 8,
+      "maxClickCenterDeviationCssPixels": 0.828125
+    }
+  ],
+  "limitations": "Short native-input checks, not extended browsing stability or performance validation.",
+  "additionalChecks": {
+    "contextMenuInTopStrip": true,
+    "dragFromTopStripIntoPage": true,
+    "addressBarMouseFocus": true,
+    "tabStripMouseSwitch": true,
+    "installedStableProfileAvitoBusinessMenuHover": true,
+    "installedStableProfileAvitoBusinessMenuClick": true
+  },
+  "installation": {
+    "host": "OCLP MacBookPro7,1",
+    "profileDirectoryRetained": true,
+    "criticalProfileBackupFilesVerified": 12,
+    "frameworkHashVerified": true
+  }
+}
