@@ -20,7 +20,7 @@ After Brave's source synchronization and upstream patch series:
 4. `brave-opengl-newtab-backdrop.patch` in Brave Core.
 5. `chromium-macos12-auto-opengl.patch` in Chromium, or generate it with `add-brave-auto-opengl.py`; do not apply both.
 6. `chromium-macos12-opengl-static-image-loading.patch` in Chromium, described below.
-7. `chromium-macos12-fullscreen-input.patch` in Chromium: post-release macOS 12 native fullscreen input workaround. See [reproduction, build and native validation](../../docs/FULLSCREEN-INPUT-MACOS12.md). This additional patch is absent from the original published 1.98.60 archive.
+7. `chromium-macos12-fullscreen-input.patch` in Chromium: post-release macOS 12 native fullscreen input workaround. See [reproduction, build and native validation](../../docs/FULLSCREEN-INPUT-MACOS12.md). Included in package revision 1.98.60-r2; absent from the original first-revision archive.
 
 The optional `brave-sync-exact-revision.patch` applies in Brave Core before sync and resolves an already fetched Chromium tag to its SHA. For the build workspace, `prefetch-local-deps.py` reuses exact dependency commits from the existing Electron checkout before gclient; set `GIT_CACHE_PATH` to the shared cache. This avoids fetching full upstream dependency histories when the same Chromium 156 objects are already local. The helper expects the gclient revinfo JSON in the host logs directory; it is an operational reuse helper, not a replacement for normal Brave dependency synchronization.
 

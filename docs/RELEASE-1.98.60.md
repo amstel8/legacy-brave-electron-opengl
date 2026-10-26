@@ -1,5 +1,7 @@
 # Brave 1.98.60 for macOS 12 — Intel, Metal and automatic OpenGL
 
+Superseded by [package revision 1.98.60-r2](RELEASE-1.98.60-r2.md), which adds the macOS 12 fullscreen input fix. This page describes the original first-revision archive.
+
 Based on Brave Core **v1.98.60** and Chromium **156.0.8078.48**. One x86_64 package uses Metal on supported Macs and automatically selects ANGLE OpenGL when no Metal device exists. Minimum macOS: **12.0**. This is an independent community build, not a Brave Software release. It does not include arm64/Universal 2 binaries.
 
 ## Download and installation

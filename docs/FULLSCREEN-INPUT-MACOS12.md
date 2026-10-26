@@ -56,4 +56,4 @@ The separate test profile encountered an Avito IP restriction during the last si
 
 The installed framework was verified against the build hash. The stable profile directory was retained; the prior application and complete profile were backed up, with twelve important profile files verified before replacement. No debugging port or diagnostic library was added to the everyday browser. The bundle version remains `156.1.98.0`; this is an additional compatibility patch over the same source tag.
 
-The original published release archive is unchanged and does not contain this post-release fix. These short checks do not establish extended browsing stability or performance.
+The fix is distributed in [package revision 1.98.60-r2](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/v1.98.60-r2-macos12-metal-opengl). The original first-revision archive remains unchanged. These short checks do not establish extended browsing stability or performance.
