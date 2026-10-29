@@ -1,39 +1,34 @@
-# Electron 45.0.0 for macOS 12 — Intel, Metal and OpenGL
+# Electron 45.1.0 for macOS 12 — Intel, Metal and OpenGL
 
-Electron **45.0.0**, Chromium **156.0.8078.48**, Node **24.22.0**. x86_64, minimum macOS 12.0. Official Release optimization settings, Electron-pinned PGO and optimized ThinLTO. Independent third-party compatibility build, without Developer ID signing or notarization.
+Electron **45.1.0**, Chromium **156.0.8078.49**, Node **24.22.1**. x86_64, minimum macOS 12.0. Official Release optimization settings, Electron-pinned PGO and optimized ThinLTO. Independent third-party compatibility build, without Developer ID signing or notarization.
 
 ## Download
 
-- `electron-v45.0.0-macos12-darwin-x64.zip` — 125,049,171 bytes.
-- SHA-256: `2807aaa78ef959402e62cb5cc348d37809d0a77470c2b1883a70ccd6ae0fd1ed`.
+- `electron-v45.1.0-macos12-darwin-x64.zip` — 125,144,840 bytes.
+- SHA-256: `fc813a0718e253f730c8b3c68225637b9d938b46910106add56f25c21d0c474f`.
 - A matching `.sha256` file is attached.
 
-## Changes from 44.9.0
+## Changes from 45.0.0
 
-- Update Electron 44.9.0 / Chromium 152 to Electron 45.0.0 / Chromium 156.
-- Retain Metal on supported GPUs and automatic ANGLE OpenGL selection when no Metal device exists; explicit graphics options are respected.
-- Restore Chromium 156's removed macOS hardware-GL route only when ANGLE GL is selected. Metal retains its upstream GPU-mode policy.
-- Restore the IOSurface texture-target contract across the shared-image factory, IPC and client for CGL rectangle textures.
-- Permit GLES2 fallback for legacy GPU collection while retaining strict WebGL2/ES3 context requests.
-- Guard macOS 26 APIs absent from the prepared SDK, including CALayer HDR properties.
-- Keep PGO/ThinLTO optimization and limit linker backend concurrency for build-host memory.
+Update Electron, Chromium and Node to the pinned versions above. Retain our macOS 12 compatibility patches, automatic ANGLE OpenGL selection when no Metal device exists, restored hardware-GL mode and IOSurface texture-target propagation. Metal-capable Macs retain the upstream default; explicit graphics switches are respected. The compatibility patches applied without source changes for this update.
+
+Official Release, hash-verified Electron PGO, optimized ThinLTO, four linker backend jobs and twelve compile jobs. Compilation completed on 2026-10-29: 42,464 steps in 9h02m09s, followed by 28s ZIP packaging. Existing output was reused; these are this update's build timings.
 
 ## Validation of this exact ZIP
 
-All checks below used the exact published ZIP on macOS 12.7.6, with separate test profiles.
+Both runs used the downloaded ZIP, verified against the build-host SHA-256, on macOS 12.7.6 with separate test profiles.
 
 | Hardware | Selection | Renderer / Skia backend | Result |
 | --- | --- | --- | --- |
-| Radeon RX 6800 XT | Default | ANGLE Metal / GraphiteDawnMetal | Hardware compositing/rasterization enabled; WebGL1 passed |
-| Radeon RX 6800 XT | Explicit `--use-angle=gl` | ANGLE OpenGL 4.1 / GaneshGL | Hardware compositing/rasterization enabled; WebGL1 passed |
-| **GeForce 320M — OCLP MacBookPro7,1** | **Automatic, no graphics switches** | **ANGLE OpenGL 3.3 / GLES2 / GaneshGL** | **Hardware compositing/rasterization enabled; WebGL1 passed; WebGL2 correctly unavailable** |
+| Radeon RX 6800 XT | Default | ANGLE Metal / GraphiteDawnMetal | Hardware compositing/rasterization enabled; WebGL1 pixel check passed |
+| Radeon RX 6800 XT | Explicit `--use-angle=gl` | ANGLE OpenGL 4.1 / GaneshGL | Hardware compositing/rasterization enabled; WebGL1 pixel check passed |
 
-All three runs read back `[51,102,204,255]` with GL error 0; no child-process exit events were recorded during these short checks. Runtime versions were Electron 45.0.0, Chromium 156.0.8078.48 and Node 24.22.0. [Machine-readable results](https://github.com/amstel8/legacy-brave-electron-opengl/blob/main/electron/validation/45.0.0.json).
+Both runs read back `[51,102,204,255]`, GL error 0, without child-process exit events during these short checks. A separate WebGL2 canvas returned a context on this GPU; WebGL2 rendering itself was not tested. Runtime versions matched Electron 45.1.0, Chromium 156.0.8078.49 and Node 24.22.1; bundle minimum OS was 12.0. ZIP CRC integrity passed. [Machine-readable results](https://github.com/amstel8/legacy-brave-electron-opengl/blob/main/electron/validation/45.1.0.json).
 
-**GeForce 320M validation completed on 2026-10-23.** Automatic OpenGL selection and GLES2 operation are verified on this non-Metal MacBook. The OpenGL 4.1 result above belongs to the RX 6800 XT; it is not a minimum requirement. Extended media, conferencing, performance and stability checks remain pending. OpenGL support does not imply WebGL2/WebGPU capability on old hardware.
+**Non-Metal GeForce 320M / automatic OpenGL 3.3-GLES2 validation is pending for 45.1.0.** The MacBook was unreachable during this release's validation. The previous 45.0.0 ZIP passed that hardware check; those results do not validate this ZIP. OpenGL 4.1 above describes the RX 6800 XT, not a minimum requirement. OpenGL support does not imply WebGL2/WebGPU capability on older hardware. Extended media, conferencing, performance and stability checks remain pending.
 
 ## Compatibility notes
 
-ScreenCaptureKit system-audio loopback is unavailable below macOS 13. Ordinary playback and microphone input are separate. The automatic GL decision detects absence of a Metal device; it does not recover from arbitrary later Metal driver failures. No installed apps or user profiles were replaced during these standalone checks.
+ScreenCaptureKit system-audio loopback is unavailable below macOS 13. Ordinary playback and microphone input are separate. Automatic GL selection detects absence of a Metal device; it does not recover from arbitrary later Metal driver failures. These standalone checks did not replace installed apps or existing profiles.
 
-[Source patches and build instructions](https://github.com/amstel8/legacy-brave-electron-opengl/tree/main/electron). Previous releases remain available; Brave remains the repository's Latest release.
+[Source patches and build instructions](https://github.com/amstel8/legacy-brave-electron-opengl/tree/main/electron). [Previous 45.0.0 release](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v45.0.0-macos12-x64). Brave remains the repository's Latest release.
