@@ -6,7 +6,7 @@ RECIPE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 SRC="$ELECTRON_WORKSPACE/src"
 # Refuse an accidental rebuild of the previous Electron checkout.
 git -C "$SRC/electron" merge-base --is-ancestor \
-  45d20ec03000aac41e73b2abdb707936b4f98ed0 HEAD
+  f81ca3d4f09f57667238120adacb01239d5ecd89 HEAD
 apply_once() {
   local repo=$1 patch=$2
   if git -C "$repo" apply --reverse --check "$patch" 2>/dev/null; then return; fi

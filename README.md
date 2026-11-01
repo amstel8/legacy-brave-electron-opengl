@@ -1,6 +1,6 @@
 # Legacy Brave, Electron and OpenGL for macOS 12
 
-Independent Brave **1.98.60-r2 / Chromium 156.0.8078.48** and Electron **45.1.0** builds for Intel Macs on macOS 12. Release assets contain binaries; this repository contains the compatibility patches, SDK declarations and build instructions. Full Chromium/Brave/Electron sources are fetched from their pinned upstream revisions.
+Independent Brave **1.98.60-r2 / Chromium 156.0.8078.48** and Electron **45.2.1** builds for Intel Macs on macOS 12. Release assets contain binaries; this repository contains the compatibility patches, SDK declarations and build instructions. Full Chromium/Brave/Electron sources are fetched from their pinned upstream revisions.
 
 ## Current Brave release
 
@@ -20,7 +20,7 @@ The r2 [fullscreen input patch](docs/FULLSCREEN-INPUT-MACOS12.md) fixes a native
 
 ## Electron
 
-[**Electron 45.1.0 / Chromium 156, macOS 12 x64**](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v45.1.0-macos12-x64) includes Node 24.22.1 and retains Metal plus automatic OpenGL selection on non-Metal Macs. This ZIP passed macOS 12.7.6 checks on RX 6800 XT with default Metal and explicit OpenGL, accelerated compositing/rasterization and WebGL1 pixel readback. **Automatic OpenGL 3.3/GLES2 on GeForce 320M remains pending for 45.1.0**; the previous 45.0.0 release passed that check. Exact patches, build instructions and current validation coverage are in [electron/](electron/) and [release notes](electron/RELEASE.md). Earlier releases remain available.
+[**Electron 45.2.1 / Chromium 156, macOS 12 x64**](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v45.2.1-macos12-x64) includes Node 24.22.1 and retains Metal plus automatic OpenGL selection on non-Metal Macs. This ZIP passed macOS 12.7.6 checks on RX 6800 XT with default Metal and explicit OpenGL, accelerated compositing/rasterization and WebGL1 pixel readback. **Automatic OpenGL 3.3/GLES2 on GeForce 320M remains pending for 45.2.1**; the previous 45.0.0 release passed that check. Exact patches, build instructions and current validation coverage are in [electron/](electron/) and [release notes](electron/RELEASE.md). Earlier releases remain available.
 
 ## Earlier Brave releases
 
