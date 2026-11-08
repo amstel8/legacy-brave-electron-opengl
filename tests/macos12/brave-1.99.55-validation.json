@@ -1,0 +1,70 @@
+{
+  "date": "2026-11-08",
+  "framework_sha256": "391734a9d30345d52a9ebf89b82111532f89397fe8f23c774581cbb4c187dd39",
+  "archive": {
+    "sha256": "e19edefed4a5d41c6cf87e6f9559d479b3beb33f4b218c2f2b616f1c591bdbf8",
+    "bytes": 291646220
+  },
+  "checks": [
+    {
+      "mode": "Metal desktop",
+      "version": "Chrome/157.0.8103.39",
+      "renderer": "ANGLE (AMD, ANGLE Metal Renderer: AMD Radeon RX 6800 XT, Version 12.7.6 (Build 21H1320))",
+      "skia": "GraphiteDawnMetal",
+      "features": {
+        "2d_canvas": "enabled",
+        "direct_rendering_display_compositor": "disabled_off_ok",
+        "gpu_compositing": "enabled",
+        "multiple_raster_threads": "enabled_on",
+        "opengl": "enabled_on",
+        "rasterization": "enabled",
+        "skia_graphite": "enabled_on",
+        "trees_in_viz": "disabled_off",
+        "video_decode": "enabled",
+        "video_encode": "enabled",
+        "webgl": "enabled",
+        "webgpu": "enabled",
+        "webnn": "disabled_off"
+      },
+      "draw": {
+        "pixels": [
+          51,
+          102,
+          204,
+          255
+        ],
+        "error": 0
+      }
+    },
+    {
+      "mode": "Automatic OpenGL MacBook",
+      "version": "Chrome/157.0.8103.39",
+      "renderer": "ANGLE (NVIDIA Corporation, NVIDIA GeForce 320M OpenGL Engine, OpenGL 3.3 NVIDIA-10.4.14 310.90.30.05b27)",
+      "skia": "GaneshGL",
+      "features": {
+        "2d_canvas": "enabled",
+        "direct_rendering_display_compositor": "disabled_off_ok",
+        "gpu_compositing": "enabled",
+        "multiple_raster_threads": "disabled_off",
+        "opengl": "enabled_on",
+        "rasterization": "enabled",
+        "skia_graphite": "disabled_off",
+        "trees_in_viz": "disabled_off",
+        "video_decode": "enabled",
+        "video_encode": "enabled",
+        "webgl": "enabled",
+        "webgpu": "enabled",
+        "webnn": "disabled_off"
+      },
+      "draw": {
+        "pixels": [
+          51,
+          102,
+          204,
+          255
+        ],
+        "error": 0
+      }
+    }
+  ]
+}

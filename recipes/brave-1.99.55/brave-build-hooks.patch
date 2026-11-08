@@ -1,0 +1,27 @@
+diff --git a/DEPS b/DEPS
+index eaa72fe54..c193cc332 100644
+--- a/DEPS
++++ b/DEPS
+@@ -86,7 +86,7 @@ hooks = [
+   {
+     'name': 'download_omaha4',
+     'pattern': '.',
+-    'condition': 'checkout_mac',
++    'condition': 'False',
+     'action': ['vpython3',
+                'tools/cr/install_extra_deps.py',
+                'sync',
+diff --git a/build/commands/lib/syncUtils.ts b/build/commands/lib/syncUtils.ts
+index 5a981d4b7..f516dd85e 100644
+--- a/build/commands/lib/syncUtils.ts
++++ b/build/commands/lib/syncUtils.ts
+@@ -353,7 +353,8 @@ export function syncChromium(program: SyncOptions) {
+ 
+   if (!tryLeanCheckout) {
+     args.push('--revision')
+-    args.push('src@' + requiredChromiumRef)
++    const resolvedRef = util.runGit(config.srcDir, ['rev-parse', requiredChromiumRef], true)
++    args.push('src@' + (resolvedRef || requiredChromiumRef))
+   }
+ 
+   util.runGclient(args)
