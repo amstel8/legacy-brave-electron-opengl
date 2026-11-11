@@ -1,0 +1,40 @@
+{
+  "artifact": {
+    "name": "electron-v45.2.3-macos12-darwin-x64.zip",
+    "bytes": 125207097,
+    "sha256": "075b57a0c7e86f85766b3675ecfb87445cd327d0b4909d8af82a5ba1a3293bcc",
+    "zip_crc": "passed",
+    "minimum_macos": "12.0"
+  },
+  "versions": {
+    "electron": "45.2.3",
+    "chrome": "156.0.8078.80",
+    "node": "24.22.2"
+  },
+  "host": {
+    "macos": "12.7.6",
+    "architecture": "x86_64",
+    "gpu": "AMD Radeon RX 6800 XT"
+  },
+  "checks": [
+    {
+      "selection": "defaultMetal",
+      "renderer": "ANGLE Metal",
+      "skia": "GraphiteDawnMetal",
+      "features": { "gpu_compositing": "enabled", "rasterization": "enabled" },
+      "draw": { "pixels": [51, 102, 204, 255], "error": 0, "webgl": "WebGL 1.0" },
+      "child_process_events": []
+    },
+    {
+      "selection": "explicitGL",
+      "switch": "--use-angle=gl",
+      "renderer": "ANGLE OpenGL 4.1",
+      "skia": "GaneshGL",
+      "features": { "gpu_compositing": "enabled", "rasterization": "enabled" },
+      "draw": { "pixels": [51, 102, 204, 255], "error": 0, "webgl": "WebGL 1.0" },
+      "child_process_events": []
+    }
+  ],
+  "legacy_macbook": "pending: automatic OpenGL 3.3/GLES2 on GeForce 320M was not tested for this ZIP",
+  "limits": ["short GUI/WebGL1 checks only", "not performance or stability validation", "extended media and conferencing checks pending"]
+}
