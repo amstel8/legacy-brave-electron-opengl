@@ -1,6 +1,6 @@
 # Legacy Brave, Electron and OpenGL for macOS 12
 
-Independent Brave **1.99.55 / Chromium 157.0.8103.39** and Electron **45.2.3** builds for Intel Macs on macOS 12. Release assets contain binaries; this repository contains the compatibility patches, SDK declarations and build instructions. Full Chromium/Brave/Electron sources are fetched from their pinned upstream revisions.
+Independent Brave **1.99.55 / Chromium 157.0.8103.39** and Electron **45.3.0** builds for Intel Macs on macOS 12. Release assets contain binaries; this repository contains the compatibility patches, SDK declarations and build instructions. Full Chromium/Brave/Electron sources are fetched from their pinned upstream revisions.
 
 ## Current Brave release
 
@@ -16,7 +16,7 @@ These are unofficial builds without Developer ID signing/notarization. is_offici
 
 ## Electron
 
-[**Electron 45.2.3 / Chromium 156, macOS 12 x64**](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v45.2.3-macos12-x64) includes Node 24.22.2 and retains Metal plus automatic OpenGL selection on non-Metal Macs. This ZIP passed macOS 12.7.6 checks on RX 6800 XT with default Metal and explicit OpenGL, accelerated compositing/rasterization and WebGL1 pixel readback. **Automatic OpenGL 3.3/GLES2 on GeForce 320M remains pending for 45.2.3**; older release results do not validate this ZIP. Exact patches, build instructions and current validation coverage are in [electron/](electron/) and [release notes](electron/RELEASE.md). Earlier releases remain available.
+[**Electron 45.3.0 / Chromium 156, macOS 12 x64**](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v45.3.0-macos12-x64) includes Node 24.22.2 and retains Metal plus automatic OpenGL selection on non-Metal Macs. This ZIP passed macOS 12.7.6 checks on RX 6800 XT with default Metal and explicit OpenGL, accelerated compositing/rasterization and WebGL1 pixel readback. **Automatic OpenGL 3.3/GLES2 on GeForce 320M remains pending for 45.3.0**; older release results do not validate this ZIP. Exact patches, build instructions and current validation coverage are in [electron/](electron/) and [release notes](electron/RELEASE.md). Earlier releases remain available.
 
 ## Earlier Brave releases
 
