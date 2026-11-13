@@ -1,0 +1,125 @@
+--- a/components/remote_cocoa/app_shim/immersive_mode_controller_cocoa.mm
++++ b/components/remote_cocoa/app_shim/immersive_mode_controller_cocoa.mm
+@@ -129,6 +129,7 @@
+ 
+ @implementation ImmersiveModeView {
+   base::WeakPtr<remote_cocoa::ImmersiveModeControllerCocoa> _controller;
++  id __strong _fullscreen_mouse_event_monitor;
+ }
+ 
+ - (instancetype)initWithController:
+@@ -141,8 +142,114 @@
+ }
+ 
+ - (void)viewWillMoveToWindow:(NSWindow*)window {
++  if (_fullscreen_mouse_event_monitor) {
++    [NSEvent removeMonitor:_fullscreen_mouse_event_monitor];
++    _fullscreen_mouse_event_monitor = nil;
++  }
+   if (_controller) {
+     _controller->ImmersiveModeViewWillMoveToWindow(window);
++  }
++}
++
++- (void)viewDidMoveToWindow {
++  [super viewDidMoveToWindow];
++  if (base::mac::MacOSMajorVersion() != 12 ||
++      !remote_cocoa::IsNSToolbarFullScreenWindow(self.window)) {
++    return;
++  }
++
++  // Monterey can leave a transparent part of NSToolbarFullScreenWindow over
++  // the page, below the actual top chrome. AppKit then delivers clicks to that
++  // empty window instead of the web contents. Forward only events over the
++  // browser's content view, outside every visible titlebar accessory.
++  __weak ImmersiveModeView* weak_self = self;
++  NSEventMask mask = NSEventMaskLeftMouseDown | NSEventMaskLeftMouseUp |
++                     NSEventMaskRightMouseDown | NSEventMaskRightMouseUp |
++                     NSEventMaskMouseMoved | NSEventMaskLeftMouseDragged |
++                     NSEventMaskRightMouseDragged;
++  _fullscreen_mouse_event_monitor =
++      [NSEvent addLocalMonitorForEventsMatchingMask:mask
++                                          handler:^NSEvent*(NSEvent* event) {
++        ImmersiveModeView* view = weak_self;
++        if (!view || !view->_controller) {
++          return event;
++        }
++        NSWindow* browser_window = view->_controller->browser_window();
++        NSWindow* event_window = event.window;
++        NSPoint screen_point =
++            event_window
++                ? [event_window convertPointToScreen:event.locationInWindow]
++                : event.locationInWindow;
++        if (event_window != view.window) {
++          // Before the first click, AppKit can leave mouse moves unassigned
++          // or associate them with the browser instead of the toolbar host.
++          // Resolve only moves physically covered by this fullscreen window;
++          // never take events from a popup or another application window.
++          if (event.type != NSEventTypeMouseMoved ||
++              (event_window && event_window != browser_window) ||
++              !NSPointInRect(screen_point, view.window.frame) ||
++              [NSWindow windowNumberAtPoint:screen_point
++                belowWindowWithWindowNumber:0] != view.window.windowNumber) {
++            return event;
++          }
++        }
++        NSView* content_view = browser_window.contentView;
++        NSPoint browser_point =
++            [browser_window convertPointFromScreen:screen_point];
++        NSPoint content_point = [content_view convertPoint:browser_point
++                                                 fromView:nil];
++        if (!NSPointInRect(content_point, content_view.visibleRect)) {
++          return event;
++        }
++        for (NSTitlebarAccessoryViewController* accessory in
++             browser_window.titlebarAccessoryViewControllers) {
++          NSView* accessory_view = accessory.view;
++          if (accessory_view.hiddenOrHasHiddenAncestor ||
++              !accessory_view.window) {
++            continue;
++          }
++          NSPoint accessory_point = [accessory_view
++              convertPoint:[accessory_view.window
++                               convertPointFromScreen:screen_point]
++                  fromView:nil];
++          if (NSPointInRect(accessory_point, accessory_view.visibleRect)) {
++            return event;
++          }
++        }
++        NSEvent* forwarded_event =
++            [NSEvent mouseEventWithType:event.type
++                              location:browser_point
++                         modifierFlags:event.modifierFlags
++                             timestamp:event.timestamp
++                          windowNumber:browser_window.windowNumber
++                               context:nil
++                           eventNumber:event.eventNumber
++                            clickCount:event.clickCount
++                              pressure:event.pressure];
++        if (!forwarded_event) {
++          return event;
++        }
++        if (event.type == NSEventTypeMouseMoved) {
++          // AppKit's tracking state still belongs to the toolbar window, so
++          // sendEvent: alone does not deliver mouse moves to the page.
++          NSPoint point_in_superview = [content_view.superview
++              convertPoint:browser_point
++                  fromView:nil];
++          NSView* target = [content_view hitTest:point_in_superview];
++          if (!target) {
++            return event;
++          }
++          [target mouseMoved:forwarded_event];
++        } else {
++          [browser_window sendEvent:forwarded_event];
++        }
++        return nil;
++      }];
++}
++
++- (void)dealloc {
++  if (_fullscreen_mouse_event_monitor) {
++    [NSEvent removeMonitor:_fullscreen_mouse_event_monitor];
+   }
+ }
+ 

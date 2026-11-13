@@ -1,0 +1,158 @@
+--- a/base/process/launch_mac.cc
++++ b/base/process/launch_mac.cc
+@@ -166,11 +166,15 @@
+ 
+ #if BUILDFLAG(IS_MAC)
+   void Chdir(const char* path) {
++#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 260000
+     if (__builtin_available(macOS 26, *)) {
+       DPSXCHECK(posix_spawn_file_actions_addchdir(&file_actions_, path));
+     } else {
+       DPSXCHECK(posix_spawn_file_actions_addchdir_np(&file_actions_, path));
+     }
++#else
++    DPSXCHECK(posix_spawn_file_actions_addchdir_np(&file_actions_, path));
++#endif
+   }
+ #endif
+ 
+--- a/ui/display/mac/screen_utils_mac.mm
++++ b/ui/display/mac/screen_utils_mac.mm
+@@ -8,13 +8,8 @@
+ 
+ NSScreen* GetNSScreenFromDisplayID(CGDirectDisplayID display_id) {
+   for (NSScreen* screen in NSScreen.screens) {
+-    CGDirectDisplayID screen_display_id = kCGNullDirectDisplay;
+-    if (@available(macOS 26, *)) {
+-      screen_display_id = screen.CGDirectDisplayID;
+-    } else {
+-      screen_display_id =
+-          [screen.deviceDescription[@"NSScreenNumber"] unsignedIntValue];
+-    }
++    CGDirectDisplayID screen_display_id =
++        [screen.deviceDescription[@"NSScreenNumber"] unsignedIntValue];
+     if (screen_display_id == display_id) {
+       return screen;
+     }
+--- a/components/remote_cocoa/app_shim/native_widget_ns_window_bridge.mm
++++ b/components/remote_cocoa/app_shim/native_widget_ns_window_bridge.mm
+@@ -124,11 +124,13 @@
+     return true;
+   }
+ 
++#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 260000
+   if (@available(macOS 26, *)) {
+     if ([view isKindOfClass:[NSGlassEffectView class]]) {
+       return true;
+     }
+   }
++#endif
+ 
+   if ([view.identifier
+           isEqualToString:remote_cocoa::kOpaqueFrameBackgroundViewIdentifier]) {
+--- a/media/audio/mac/audio_loopback_input_mac_impl.mm
++++ b/media/audio/mac/audio_loopback_input_mac_impl.mm
+@@ -317,6 +317,12 @@
+ 
+ AudioInputStream::OpenOutcome SCKAudioInputStream::Open() {
+   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
++  // ScreenCaptureKit audio capture requires Ventura; retain normal audio on Monterey.
++  if (__builtin_available(macOS 13.0, *)) {
++    // Continue with the ScreenCaptureKit audio implementation.
++  } else {
++    return OpenOutcome::kFailed;
++  }
+   if (stream_) {
+     return OpenOutcome::kAlreadyOpen;
+   }
+--- a/build/config/compiler/BUILD.gn
++++ b/build/config/compiler/BUILD.gn
+@@ -129,7 +129,11 @@
+   # Whether to enable thin lto incremental builds.
+   # See: https://clang.llvm.org/docs/ThinLTO.html#incremental
+   # The cache can lead to non-determinism: https://crbug.com/1486045
+-  thin_lto_enable_cache = true
++  thin_lto_enable_cache = true
++
++  # Limit the number of concurrent ThinLTO backend jobs on the 32 GB Intel
++  # build host so that the link step stays within the available memory.
++  thin_lto_backend_jobs = 0
+ 
+   # Initialize all local variables with a pattern. This flag will fill
+   # uninitialized floating-point types (and 32-bit pointers) with 0xFF and the
+@@ -845,7 +849,11 @@
+       # and let it use all cores.
+       # TODO(thakis): Check if '=0' (that is, number of cores, instead
+       # of "all" which means number of hardware threads) is faster.
+-      ldflags += [ "-Wl,--thinlto-jobs=all" ]
++      if (is_mac && thin_lto_backend_jobs > 0) {
++        ldflags += [ "-Wl,--thinlto-jobs=$thin_lto_backend_jobs" ]
++      } else {
++        ldflags += [ "-Wl,--thinlto-jobs=all" ]
++      }
+ 
+       if (is_chromeos) {
+         # ARM was originally set lower than x86 to keep the size
+--- a/ui/accelerated_widget_mac/ca_renderer_layer_tree.mm
++++ b/ui/accelerated_widget_mac/ca_renderer_layer_tree.mm
+@@ -1279,6 +1279,7 @@
+       break;
+   }
+ 
++#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 260000
+   if (UseCALayerContentsHeadroom() && update_contents) {
+     if (@available(macOS 26, iOS 26, *)) {
+       float max_hdr_headroom = cc::ToneMapUtil::GetMaxHdrHeadroom(
+@@ -1296,6 +1297,7 @@
+       }
+     }
+   }
++#endif
+ 
+   if (update_contents_rect) {
+     if (type_ != CALayerType::kVideo)
+--- a/chrome/browser/ui/views/frame/browser_native_widget_mac.mm
++++ b/chrome/browser/ui/views/frame/browser_native_widget_mac.mm
+@@ -144,6 +144,7 @@
+ 
+ }  // namespace
+ 
++#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 260000
+ // NSGlassEffectView intercepts hit testing even when added below the
+ // WebContents NSViews. Returning nil here lets clicks pass through to the
+ // sibling subviews that are supposed to receive them.
+@@ -156,6 +157,8 @@
+   return nil;
+ }
+ @end
++
++#endif
+ 
+ @interface OpaqueFrameBackgroundView : NSView
+ @end
+@@ -979,6 +982,9 @@
+ }
+ 
+ void BrowserNativeWidgetMac::UpdateGlassEligibility(bool is_glass_eligible) {
++#if __MAC_OS_X_VERSION_MAX_ALLOWED < 260000
++  is_glass_eligible = false;
++#endif
+   if (!GetNSWindowHost()) {
+     return;
+   }
+@@ -1011,6 +1017,7 @@
+     return;
+   }
+ 
++#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 260000
+   if (@available(macOS 26.0, *)) {
+     GetNSWindowHost()->SetLayerAndCompositorOpaque(false);
+     [ns_window setOpaque:NO];
+@@ -1060,6 +1067,7 @@
+     UpdateBackgroundGeometry();
+     UpdateBackgroundColor();
+   }
++#endif
+ }
+ 
+ void BrowserNativeWidgetMac::UpdateBackgroundGeometry() {

@@ -1,0 +1,59 @@
+--- a/browser/ui/webui/brave_new_tab_page_refresh/new_tab_page_initializer.cc
++++ b/browser/ui/webui/brave_new_tab_page_refresh/new_tab_page_initializer.cc
+@@ -9,6 +9,7 @@
+ #include <utility>
+ 
+ #include "base/check.h"
++#include "base/command_line.h"
+ #include "base/feature_list.h"
+ #include "base/strings/strcat.h"
+ #include "brave/browser/new_tab/new_tab_shows_options.h"
+@@ -27,6 +28,7 @@
+ #include "brave/components/constants/webui_url_constants.h"
+ #include "brave/components/ntp_background_images/browser/features.h"
+ #include "brave/components/ntp_background_images/browser/ntp_custom_images_source.h"
++#include "build/build_config.h"
+ #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/profiles/profile.h"
+ #include "chrome/browser/regional_capabilities/regional_capabilities_service_factory.h"
+@@ -188,6 +190,16 @@
+ }
+ 
+ void NewTabPageInitializer::AddLoadTimeValues() {
++  // Legacy CGL IOSurface rendering corrupts backdrop-filter passes on some
++  // non-Metal GPUs. Limit the workaround to this WebUI and explicit OpenGL;
++  // compositor/raster acceleration and the default Metal path are retained.
++  bool legacy_opengl = false;
++#if BUILDFLAG(IS_MAC)
++  legacy_opengl = base::CommandLine::ForCurrentProcess()->GetSwitchValueASCII(
++                      "use-angle") == "gl";
++#endif
++  source_->AddString("legacyOpenGL", legacy_opengl ? "true" : "false");
++
+   auto* profile = GetProfile();
+   auto* prefs = profile->GetPrefs();
+ 
+--- a/browser/resources/brave_new_tab_page_refresh/brave_new_tab_page.html
++++ b/browser/resources/brave_new_tab_page_refresh/brave_new_tab_page.html
+@@ -1,5 +1,5 @@
+ <!doctype html>
+-<html data-testid="brave-new-tab-page" dir="$i18n{textdirection}" lang="$i18n{language}">
++<html data-legacy-opengl="$i18n{legacyOpenGL}" data-testid="brave-new-tab-page" dir="$i18n{textdirection}" lang="$i18n{language}">
+ <head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width">
+@@ -12,6 +12,14 @@
+   <script src="/strings.js"></script>
+   <script type="module" src="/brave_new_tab_page.bundle.js"></script>
+   <style>
++    /* Keep hardware OpenGL rendering, avoiding broken legacy backdrop reads. */
++    html[data-legacy-opengl="true"] * {
++      backdrop-filter: none !important;
++      -webkit-backdrop-filter: none !important;
++    }
++    html[data-legacy-opengl="true"] .background-filter {
++      animation: none !important;
++    }
+     body {
+       background: $i18n{backgroundColor};
+     }

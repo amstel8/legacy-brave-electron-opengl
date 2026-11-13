@@ -1,0 +1,52 @@
+--- a/chrome/browser/chrome_content_browser_client.cc
++++ b/chrome/browser/chrome_content_browser_client.cc
+@@ -2984,6 +2984,14 @@
+ #endif
+ 
+   if (process_type == switches::kRendererProcess) {
++#if BUILDFLAG(IS_MAC)
++    // Legacy CGL drivers can expose unstable incremental image uploads.
++    // Keep final-image GPU rendering, but defer incomplete static previews.
++    if (browser_command_line.GetSwitchValueASCII("use-angle") == "gl" &&
++        !browser_command_line.HasSwitch("disable-gpu")) {
++      command_line->AppendSwitch("disable-legacy-gl-partial-images");
++    }
++#endif
+     content::RenderProcessHost* process =
+         content::RenderProcessHost::FromID(child_process_id);
+     if (process) {
+--- a/third_party/blink/renderer/platform/graphics/bitmap_image.cc
++++ b/third_party/blink/renderer/platform/graphics/bitmap_image.cc
+@@ -30,8 +30,10 @@
+ #include <memory>
+ #include <utility>
+ 
++#include "base/command_line.h"
+ #include "base/memory/scoped_refptr.h"
+ #include "base/metrics/histogram_macros.h"
++#include "build/build_config.h"
+ #include "cc/paint/paint_flags.h"
+ #include "cc/paint/paint_image.h"
+ #include "third_party/blink/renderer/platform/graphics/bitmap_image_metrics.h"
+@@ -413,6 +415,21 @@
+ 
+ PaintImage BitmapImage::PaintImageForCurrentFrameWithInfo(
+     const ImageNodeAnimationInfo* image_node_animation_info) {
++#if BUILDFLAG(IS_MAC)
++  static const bool defer_legacy_gl_partial_images =
++      base::CommandLine::ForCurrentProcess()->HasSwitch(
++          "disable-legacy-gl-partial-images");
++  if (defer_legacy_gl_partial_images && !all_data_received_ && decoder_ &&
++      decoder_->RepetitionCount() == kAnimationNone) {
++    const String extension = decoder_->FilenameExtension();
++    if (extension == "jpg" || extension == "webp") {
++      // Completion invalidates the frame cache via DataChanged() and the
++      // normal image notification repaints it. Avoid unstable partial JPEG/WebP
++      // frames on legacy CGL; leave animated images and other formats alone.
++      return PaintImage();
++    }
++  }
++#endif
+   ImageAnimationEnum image_animation =
+       image_node_animation_info ? image_node_animation_info->image_animation
+                                 : ImageAnimationEnum::kNormal;

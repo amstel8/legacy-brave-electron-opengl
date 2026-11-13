@@ -1,26 +1,26 @@
 # Legacy Brave, Electron and OpenGL for macOS 12
 
-Independent Brave **1.99.55 / Chromium 157.0.8103.39** and Electron **45.3.0** builds for Intel Macs on macOS 12. Release assets contain binaries; this repository contains the compatibility patches, SDK declarations and build instructions. Full Chromium/Brave/Electron sources are fetched from their pinned upstream revisions.
+Independent Brave **1.99.56 / Chromium 157.0.8103.50** and Electron **45.3.0** builds for Intel Macs on macOS 12. Release assets contain binaries; this repository contains the compatibility patches, SDK declarations and build instructions. Full Chromium/Brave/Electron sources are fetched from their pinned upstream revisions.
 
 Website: [Stay on Monterey](https://stayonmonterey.fyi/).
 
 ## Current Brave release
 
-[**Download Brave 1.99.55 / Chromium 157 — Metal and automatic OpenGL**](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/v1.99.55-macos12-metal-opengl).
+[**Download Brave 1.99.56 / Chromium 157 — Metal and automatic OpenGL**](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/v1.99.56-macos12-metal-opengl).
 
-One x86_64 app targets macOS 12.0+ with Official Release, PGO and optimized ThinLTO. This exact archive passed short macOS 12.7.6 checks on RX 6800 XT with default Metal and GeForce 320M OCLP with automatic OpenGL 3.3: accelerated compositing/rasterization and WebGL1 pixel readback. Stable profile directory and existing compatibility patches are retained. It is an Intel binary, not Universal 2.
+Intel x86_64, minimum macOS 12.0, Official Release with PGO and optimized ThinLTO. Source Brave Core **1.99.56**, Chromium **157.0.8103.50**; bundle metadata **157.1.99.0**. Existing stable profile directory and all macOS 12/OpenGL compatibility workarounds remain included.
 
-Bundle version **157.1.99.0**, source Brave Core **v1.99.55**, Chromium **157.0.8103.39**. See [release notes](docs/RELEASE-1.99.55.md), [validation evidence](tests/macos12/brave-1.99.55-validation.json) and [all source patches/build recipe](recipes/brave-1.99.55/README.md).
+This exact package passed short RX 6800 XT / macOS 12.7.6 tests with default Metal and explicit OpenGL 4.1: accelerated compositing/rasterization and WebGL1 pixel readback. **Automatic OpenGL 3.3 on GeForce 320M remains pending for this version.** Fullscreen/Avito/performance and extended stability were not revalidated. Earlier hardware results apply only to their original binaries.
 
-The macOS 12 [fullscreen input workaround](docs/FULLSCREEN-INPUT-MACOS12.md) and legacy-GL partial static-image workaround remain included. Fullscreen clicks, Avito image behavior, performance and extended stability were not revalidated for this version; earlier measurements apply only to their original binaries.
-
-These are unofficial builds without Developer ID signing/notarization. is_official_build=true selects optimization settings, not endorsement by Brave/Electron. Proprietary service credentials were unavailable and placeholders were used; associated services may not work.
+[Release notes](docs/RELEASE-1.99.56.md), [source patches/build recipe](recipes/brave-1.99.56/README.md), [validation evidence](tests/macos12/brave-1.99.56-validation.json). Independent unsigned third-party build; proprietary service credentials are placeholders and associated services may not work.
 
 ## Electron
 
 [**Electron 45.3.0 / Chromium 156, macOS 12 x64**](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v45.3.0-macos12-x64) includes Node 24.22.2 and retains Metal plus automatic OpenGL selection on non-Metal Macs. This ZIP passed macOS 12.7.6 checks on RX 6800 XT with default Metal and explicit OpenGL, accelerated compositing/rasterization and WebGL1 pixel readback. **Automatic OpenGL 3.3/GLES2 on GeForce 320M remains pending for 45.3.0**; older release results do not validate this ZIP. Exact patches, build instructions and current validation coverage are in [electron/](electron/) and [release notes](electron/RELEASE.md). Earlier releases remain available.
 
 ## Earlier Brave releases
+
+- [1.99.55](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/v1.99.55-macos12-metal-opengl) — previous Chromium 157 build, validated with Metal and automatic OpenGL on GeForce 320M.
 
 - [1.98.60-r2](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/v1.98.60-r2-macos12-metal-opengl) — Chromium 156 with the native fullscreen input fix.
 
