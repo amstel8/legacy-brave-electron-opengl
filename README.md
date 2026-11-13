@@ -2,6 +2,8 @@
 
 Independent Brave **1.99.55 / Chromium 157.0.8103.39** and Electron **45.3.0** builds for Intel Macs on macOS 12. Release assets contain binaries; this repository contains the compatibility patches, SDK declarations and build instructions. Full Chromium/Brave/Electron sources are fetched from their pinned upstream revisions.
 
+Website: [Stay on Monterey](https://stayonmonterey.fyi/).
+
 ## Current Brave release
 
 [**Download Brave 1.99.55 / Chromium 157 — Metal and automatic OpenGL**](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/v1.99.55-macos12-metal-opengl).
