@@ -1,19 +1,19 @@
-# Electron 45.3.0 for macOS 12 (Intel)
+# Electron 45.3.2 for macOS 12 (Intel)
 
-Independent x86_64 compatibility build of Electron **v45.3.0**, Chromium **156.0.8078.96**, Node **24.22.2**, targeting macOS 12.0+. Upstream sources are downloaded separately; this repository contains the compatibility changes and build recipe.
+Independent x86_64 compatibility build of Electron **v45.3.2**, Chromium **156.0.8078.100**, Node **24.22.2**, targeting macOS 12.0+. Upstream sources are downloaded separately; this repository contains the compatibility changes and build recipe.
 
 ## Download
 
-[Electron 45.3.0 macOS 12 x64 release](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v45.3.0-macos12-x64)
+[Electron 45.3.2 macOS 12 x64 release](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v45.3.2-macos12-x64)
 
-Archive: `electron-v45.3.0-macos12-darwin-x64.zip`. See the release assets for its SHA-256 file and [release notes](RELEASE.md) for validation results.
+Archive: `electron-v45.3.2-macos12-darwin-x64.zip`. See the release assets for its SHA-256 file and [release notes](RELEASE.md) for validation results.
 
 ## Pinned sources
 
 | Component | Version | Upstream commit |
 | --- | --- | --- |
-| Electron | v45.3.0 | `4701f41b6c6eef25332111976d5869ed31c62a6e` |
-| Chromium | 156.0.8078.96 | `2ad9b7f5a86846e0b264090723a6a78964bb84c4` |
+| Electron | v45.3.2 | `9ee9e7718172287d068cee397097c2d79a137eec` |
+| Chromium | 156.0.8078.100 | `46876a0c2df3492ed67a8846950ba6d37170b58c` |
 | Embedded Node | 24.22.2 | Pinned by Electron DEPS |
 
 ## Rendering
@@ -28,12 +28,12 @@ Chromium 156 removed macOS hardware-GL mode and the IOSurface texture-target cap
 
 The successful host used macOS 12, Xcode 14.2 tools, a private prepared SDK 15.5 copy, depot_tools and Node 24.21.0. Electron uses its own Chromium workspace, separate from Brave.
 
-1. Create a gclient workspace with an unmanaged `src/electron` solution pointing to `https://github.com/electron/electron.git`, `deps_file: DEPS`, and `target_os = ["mac"]`. Fetch and check out Electron v45.3.0 explicitly. Sync without hooks using the exact Electron and Chromium commits in the table, for example:
+1. Create a gclient workspace with an unmanaged `src/electron` solution pointing to `https://github.com/electron/electron.git`, `deps_file: DEPS`, and `target_os = ["mac"]`. Fetch and check out Electron v45.3.2 explicitly. Sync without hooks using the exact Electron and Chromium commits in the table, for example:
 
    ```sh
    gclient sync --nohooks --force --reset --no-history --jobs=8 \
-     --revision src/electron@4701f41b6c6eef25332111976d5869ed31c62a6e \
-     --revision src@2ad9b7f5a86846e0b264090723a6a78964bb84c4
+     --revision src/electron@9ee9e7718172287d068cee397097c2d79a137eec \
+     --revision src@46876a0c2df3492ed67a8846950ba6d37170b58c
    ```
 
    Back up existing work before reset. When reusing an older dependency tree, move conflicting obsolete dependency directories aside instead of deleting unrelated files. For large shared Git caches, `git -c core.alternateRefsCommand=true` avoids scanning every alternate-cache ref; the sync host used the equivalent scoped Git environment configuration.
@@ -56,9 +56,9 @@ See [45.0.0 compatibility patch review](../docs/ELECTRON-45.0.0-PATCH-REVIEW.md)
 
 ## Validation
 
-The exact 45.3.0 ZIP passed macOS 12.7.6 GUI/WebGL1 checks on Radeon RX 6800 XT with default Metal and explicit OpenGL 4.1. Hardware compositing/rasterization were enabled; pixel readback was `[51,102,204,255]`, GL error 0, with no child-process exit events during the short checks. [Evidence](validation/45.3.0.json).
+The exact 45.3.2 ZIP passed macOS 12.7.6 GUI/WebGL1 checks on Radeon RX 6800 XT with default Metal and explicit OpenGL 4.1. Hardware compositing/rasterization were enabled; pixel readback was `[51,102,204,255]`, GL error 0, with no child-process exit events during the short checks. [Evidence](validation/45.3.2.json).
 
-**GeForce 320M / automatic OpenGL 3.3 validation remains pending for 45.3.0.** The MacBook was not used for this release. Older release results do not validate this ZIP. OpenGL 4.1 above describes the RX 6800 XT, not a minimum hardware requirement. Extended stability remains untested.
+**GeForce 320M / automatic OpenGL 3.3 validation remains pending for 45.3.2.** The MacBook was not used for this release. Older release results do not validate this ZIP. OpenGL 4.1 above describes the RX 6800 XT, not a minimum hardware requirement. Extended stability remains untested.
 
 ## Limits
 
