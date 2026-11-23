@@ -1,18 +1,18 @@
-# Electron 45.3.4 for macOS 12 (Intel)
+# Electron 45.4.1 for macOS 12 (Intel)
 
-Independent x86_64 compatibility build of Electron **v45.3.4**, Chromium **156.0.8078.100**, Node **24.22.3**, targeting macOS 12.0+. Upstream sources are downloaded separately; this repository contains the compatibility changes and build recipe.
+Independent x86_64 compatibility build of Electron **v45.4.1**, Chromium **156.0.8078.100**, Node **24.22.3**, targeting macOS 12.0+. Upstream sources are downloaded separately; this repository contains the compatibility changes and build recipe.
 
 ## Download
 
-[Electron 45.3.4 macOS 12 x64 release](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v45.3.4-macos12-x64)
+[Electron 45.4.1 macOS 12 x64 release](https://github.com/amstel8/legacy-brave-electron-opengl/releases/tag/electron-v45.4.1-macos12-x64)
 
-Archive: `electron-v45.3.4-macos12-darwin-x64.zip`. See the release assets for its SHA-256 file and [release notes](RELEASE.md) for validation results.
+Archive: `electron-v45.4.1-macos12-darwin-x64.zip`. See the release assets for its SHA-256 file and [release notes](RELEASE.md) for validation results.
 
 ## Pinned sources
 
 | Component | Version | Upstream commit |
 | --- | --- | --- |
-| Electron | v45.3.4 | `f3d1a2f654d6e7ccdbc5ccdd022b147fa05f064e` |
+| Electron | v45.4.1 | `deaded07eebdfe9a3737884933b1acbe65971f64` |
 | Chromium | 156.0.8078.100 | `46876a0c2df3492ed67a8846950ba6d37170b58c` |
 | Embedded Node | 24.22.3 | Pinned by Electron DEPS |
 
@@ -28,11 +28,11 @@ Chromium 156 removed macOS hardware-GL mode and the IOSurface texture-target cap
 
 The successful host used macOS 12, Xcode 14.2 tools, a private prepared SDK 15.5 copy, depot_tools and Node 24.21.0. Electron uses its own Chromium workspace, separate from Brave.
 
-1. Create a gclient workspace with an unmanaged `src/electron` solution pointing to `https://github.com/electron/electron.git`, `deps_file: DEPS`, and `target_os = ["mac"]`. Fetch and check out Electron v45.3.4 explicitly. Sync without hooks using the exact Electron and Chromium commits in the table, for example:
+1. Create a gclient workspace with an unmanaged `src/electron` solution pointing to `https://github.com/electron/electron.git`, `deps_file: DEPS`, and `target_os = ["mac"]`. Fetch and check out Electron v45.4.1 explicitly. Sync without hooks using the exact Electron and Chromium commits in the table, for example:
 
    ```sh
    gclient sync --nohooks --force --reset --no-history --jobs=8 \
-     --revision src/electron@f3d1a2f654d6e7ccdbc5ccdd022b147fa05f064e \
+     --revision src/electron@deaded07eebdfe9a3737884933b1acbe65971f64 \
      --revision src@46876a0c2df3492ed67a8846950ba6d37170b58c
    ```
 
@@ -56,9 +56,9 @@ See [45.0.0 compatibility patch review](../docs/ELECTRON-45.0.0-PATCH-REVIEW.md)
 
 ## Validation
 
-The exact 45.3.4 ZIP passed macOS 12.7.6 GUI/WebGL1 checks on Radeon RX 6800 XT with default Metal and explicit OpenGL 4.1. Hardware compositing/rasterization were enabled; pixel readback was `[51,102,204,255]`, GL error 0, with no child-process exit events during the short checks. [Evidence](validation/45.3.4.json).
+The exact 45.4.1 ZIP passed macOS 12.7.6 GUI/WebGL1 checks on Radeon RX 6800 XT with default Metal and explicit OpenGL 4.1. Hardware compositing/rasterization were enabled; pixel readback was `[51,102,204,255]`, GL error 0, with no child-process exit events during the short checks. [Evidence](validation/45.4.1.json).
 
-**GeForce 320M / automatic OpenGL 3.3 validation remains pending for 45.3.4.** The MacBook was not used for this release. Older release results do not validate this ZIP. OpenGL 4.1 above describes the RX 6800 XT, not a minimum hardware requirement. Extended stability remains untested.
+**GeForce 320M / automatic OpenGL 3.3 validation remains pending for 45.4.1.** The MacBook was not used for this release. Older release results do not validate this ZIP. OpenGL 4.1 above describes the RX 6800 XT, not a minimum hardware requirement. Extended stability remains untested.
 
 ## Limits
 
