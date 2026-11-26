@@ -1,0 +1,14 @@
+diff --git a/build/config.gni b/build/config.gni
+index 9e5a1b189..9fab5a577 100644
+--- a/build/config.gni
++++ b/build/config.gni
+@@ -164,7 +164,8 @@ if (is_win) {
+       assert(brave_channel == "", "Unknown channel name")
+     }
+   } else {
+-    brave_product_dir_name_suffix = "-Development"
++    # Local Monterey stable build reuses the existing stable browser profile.
++    brave_product_dir_name_suffix = ""
+   }
+ 
+   brave_product_dir_name =

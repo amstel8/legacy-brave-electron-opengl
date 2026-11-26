@@ -33,6 +33,8 @@ This exact package passed short RX 6800 XT / macOS 12.7.6 tests with default Met
 
 ## Source changes and build recipe
 
+[Brave 1.100.58 / Chromium 158 source recipe](recipes/brave-1.100.58/README.md) records the macOS 12 build, SDK and Rust/WebAssembly fixes.
+
 The previous Chromium 156 patches, application order, pinned revisions and image-loading workaround are in [recipes/brave-1.98.60/](recipes/brave-1.98.60/README.md). Top-level `patches/` and [BUILD.md](docs/BUILD.md) retain the earlier Chromium 155 recipe; use [the Chromium 157 recipe](recipes/brave-1.99.55/README.md) for the current release. Large upstream repositories are fetched from their pinned revisions. Electron has its own compatibility patches and SDK preparation recipe.
 
 See the [previous Chromium 156 build details](docs/UNIFIED-1.98.60.md), [previous build validation](docs/UNIFIED-1.97.59.md) and [OpenGL validation history](docs/OPENGL.md). Upstream licenses continue to apply to all derived code and bundled resources.
